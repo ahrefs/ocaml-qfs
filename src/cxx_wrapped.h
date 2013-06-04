@@ -1,6 +1,6 @@
 // Simple template to wrap C++ object as OCaml custom value
 // Copyright (C) 2010, ygrek <ygrek@autistici.org>
-// 01/11/2010
+// 04/06/2013
 //
 // value wrapped<Ptr>::alloc(Ptr)
 //    creates custom value with pointer to C++ object inside
@@ -131,7 +131,13 @@ struct wrapped_ptr : public wrapped<std::auto_ptr<T> >
   }
 }; // wrapped_ptr
 
-size_t wrapped_tag(value x) { return wrapped_ptr<void>::tag(x); }
+#if defined(__GNUC__)
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
+
+static size_t UNUSED wrapped_tag(value x) { return wrapped_ptr<void>::tag(x); }
 
 class caml_blocking_section // : boost::noncopyable
 {
