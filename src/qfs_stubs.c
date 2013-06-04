@@ -17,6 +17,21 @@ extern "C" {
 #include <caml/unixsupport.h>
 
 #include <memory.h>
+#include <fcntl.h>
+
+/* sync with Unix.open_flag */
+static int open_flag_table[] = {
+  O_RDONLY, O_WRONLY, O_RDWR, O_NONBLOCK, O_APPEND, O_CREAT, O_TRUNC, O_EXCL,
+  O_NOCTTY, O_DSYNC, O_SYNC, O_RSYNC, 0 /* O_SHARE_DELETE */
+};
+
+int unix_open_flags(value v_flags)
+{
+  return caml_convert_flag_list(v_flags, open_flag_table);
+}
+
+#define File_val Int_val
+#define Val_file Val_int
 
 /*
 #define Val_none Val_int(0)
@@ -131,12 +146,21 @@ CAMLprim value ml_qfs_create(value v, value v_path, value v_exclusive, value v_p
   int ret = ml_client::get(v)->Create((const char*)String_val(v_path), (bool)Bool_val(v_exclusive), (const char*)String_val(v_params));
   if (0 != ret)
     unix_error(ret,"Qfs.create",v_path);
-  return Val_int(ret);
+  return Val_file(ret);
+}
+
+CAMLprim value ml_qfs_open(value v, value v_path, value v_flags, value v_params)
+{
+  int flags = unix_open_flags(v_flags);
+  int ret = ml_client::get(v)->Open((const char*)String_val(v_path), flags, (const char*)String_val(v_params));
+  if (0 != ret)
+    unix_error(ret,"Qfs.open",v_path);
+  return Val_file(ret);
 }
 
 CAMLprim value ml_qfs_close(value v, value v_file)
 {
-  int ret = ml_client::get(v)->Close(Int_val(v_file));
+  int ret = ml_client::get(v)->Close(File_val(v_file));
   if (0 != ret)
     unix_error(ret,"Qfs.close",Nothing);
   return Val_unit;
@@ -172,6 +196,53 @@ CAMLprim value ml_qfs_rmdir(value v, value v_path)
   if (0 != ret)
     unix_error(ret,"Qfs.rmdir",v_path);
   return Val_unit;
+}
+
+CAMLprim value ml_qfs_sync(value v, value v_file)
+{
+  int ret = ml_client::get(v)->Sync(File_val(v_file));
+  if (0 != ret)
+    unix_error(ret,"Qfs.sync",Nothing);
+  return Val_unit;
+}
+
+CAMLprim value ml_qfs_rename(value v, value v_old, value v_new, value v_overwrite)
+{
+  int ret = ml_client::get(v)->Rename(String_val(v_old), String_val(v_new), Bool_val(v_overwrite));
+  if (0 != ret)
+    unix_error(ret,"Qfs.rename",v_old); // -1
+  return Val_unit;
+}
+
+value make_stat(KfsFileAttr const& st)
+{
+  CAMLparam0();
+  CAMLlocal1(v_st);
+
+  v_st = caml_alloc_tuple(3);
+  Store_field(v_st, 0, Val_int(st.fileSize));
+  Store_field(v_st, 1, caml_copy_double((double) st.mtime.tv_sec + (double) st.mtime.tv_usec / 1e6));
+  Store_field(v_st, 2, Val_bool(st.isDirectory));
+
+  CAMLreturn(v_st);
+}
+
+CAMLprim value ml_qfs_stat(value v, value v_path)
+{
+  KfsFileAttr st;
+  int ret = ml_client::get(v)->Stat(String_val(v_path), st, true);
+  if (0 != ret)
+    unix_error(ret,"Qfs.stat",v_path);
+  return make_stat(st);
+}
+
+CAMLprim value ml_qfs_fstat(value v, value v_file)
+{
+  KfsFileAttr st;
+  int ret = ml_client::get(v)->Stat(File_val(v_file), st);
+  if (0 != ret)
+    unix_error(ret,"Qfs.fstat",Nothing);
+  return make_stat(st);
 }
 
 } // extern "C"
