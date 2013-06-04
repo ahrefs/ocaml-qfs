@@ -1,0 +1,38 @@
+OASISFormat: 0.3
+Name:        qfs
+Version:     0.1
+License:     LGPL-2.1 with OCaml linking exception
+Authors:     ygrek
+Copyrights:  (C) 2013 ygrek
+Homepage:    http://qfs.forge.ocamlcore.org/
+BuildTools:  ocamlbuild, camlidl
+Plugins:     DevFiles (0.3), META (0.3)
+
+Synopsis:    qfs bindings
+Description:
+  API to access QFS
+
+Library qfs
+  Path: src
+  Modules: Qfs
+  BuildDepends: unix
+  CCopt: -x c++ -Wall -Wno-write-strings -I /home/ygrek/work/contrib/qfs/build/release/include
+  CClib: -lqfs_client -lqfs_io -lqfs_qcdio -lqfs_qcrs -lqfs_common -lpthread -L/home/ygrek/work/contrib/qfs/build/release/lib
+  CSources: qfs_stubs.c, cxx_wrapped.h
+
+Executable example
+  Path: src
+  MainIs: example.ml
+  Install: false
+  CompiledObject: best
+  BuildDepends: qfs
+
+Document api
+  Title: API reference for qfs
+  Type: ocamlbuild (0.3)
+  Authors: ygrek
+  BuildTools: ocamldoc
+  Format: HTML
+  Index: index.html
+  XOCamlbuildPath:      .
+  XOCamlbuildLibraries: qfs

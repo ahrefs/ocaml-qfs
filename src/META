@@ -1,0 +1,12 @@
+# OASIS_START
+# DO NOT EDIT (digest: 677404b5be4b578071ed2cdb83642958)
+version = "0.1"
+description = "qfs bindings"
+requires = "unix"
+archive(byte) = "qfs.cma"
+archive(byte, plugin) = "qfs.cma"
+archive(native) = "qfs.cmxa"
+archive(native, plugin) = "qfs.cmxs"
+exists_if = "qfs.cma"
+# OASIS_STOP
+
