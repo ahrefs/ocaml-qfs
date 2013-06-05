@@ -114,7 +114,7 @@ CAMLprim value ml_qfs_mkdirs(value v, value v_dir)
 {
   int ret = ml_client::get(v)->Mkdirs(String_val(v_dir));
   if (0 != ret)
-    unix_error(ret,"Qfs.mkdirs",v_dir);
+    unix_error(-ret,"Qfs.mkdirs",v_dir);
   return Val_unit;
 }
 
@@ -122,7 +122,7 @@ CAMLprim value ml_qfs_mkdir(value v, value v_dir)
 {
   int ret = ml_client::get(v)->Mkdir(String_val(v_dir));
   if (0 != ret)
-    unix_error(ret,"Qfs.mkdir",v_dir);
+    unix_error(-ret,"Qfs.mkdir",v_dir);
   return Val_unit;
 }
 
@@ -145,7 +145,7 @@ CAMLprim value ml_qfs_create(value v, value v_path, value v_exclusive, value v_p
 {
   int ret = ml_client::get(v)->Create((const char*)String_val(v_path), (bool)Bool_val(v_exclusive), (const char*)String_val(v_params));
   if (ret < 0)
-    unix_error(ret,"Qfs.create",v_path);
+    unix_error(-ret,"Qfs.create",v_path);
   return Val_file(ret);
 }
 
@@ -154,7 +154,7 @@ CAMLprim value ml_qfs_open(value v, value v_path, value v_flags, value v_params)
   int flags = unix_open_flags(v_flags);
   int ret = ml_client::get(v)->Open((const char*)String_val(v_path), flags, (const char*)String_val(v_params));
   if (ret < 0)
-    unix_error(ret,"Qfs.open",v_path);
+    unix_error(-ret,"Qfs.open",v_path);
   return Val_file(ret);
 }
 
@@ -162,7 +162,7 @@ CAMLprim value ml_qfs_close(value v, value v_file)
 {
   int ret = ml_client::get(v)->Close(File_val(v_file));
   if (0 != ret)
-    unix_error(ret,"Qfs.close",Nothing);
+    unix_error(-ret,"Qfs.close",Nothing);
   return Val_unit;
 }
 
@@ -173,7 +173,7 @@ CAMLprim value ml_qfs_readdir(value v, value v_path)
   std::vector<std::string> result;
   int ret = ml_client::get(v)->Readdir(String_val(v_path), result);
   if (0 != ret)
-    unix_error(ret,"Qfs.readdir",v_path);
+    unix_error(-ret,"Qfs.readdir",v_path);
   v_arr = caml_alloc_tuple(result.size());
   for (size_t i = 0; i < result.size(); i++)
   {
@@ -186,7 +186,7 @@ CAMLprim value ml_qfs_remove(value v, value v_path)
 {
   int ret = ml_client::get(v)->Remove(String_val(v_path));
   if (0 != ret) // FIXME status code
-    unix_error(ret,"Qfs.remove",v_path);
+    unix_error(-ret,"Qfs.remove",v_path);
   return Val_unit;
 }
 
@@ -194,7 +194,7 @@ CAMLprim value ml_qfs_rmdir(value v, value v_path)
 {
   int ret = ml_client::get(v)->Rmdir(String_val(v_path));
   if (0 != ret)
-    unix_error(ret,"Qfs.rmdir",v_path);
+    unix_error(-ret,"Qfs.rmdir",v_path);
   return Val_unit;
 }
 
@@ -202,7 +202,7 @@ CAMLprim value ml_qfs_sync(value v, value v_file)
 {
   int ret = ml_client::get(v)->Sync(File_val(v_file));
   if (0 != ret)
-    unix_error(ret,"Qfs.sync",Nothing);
+    unix_error(-ret,"Qfs.sync",Nothing);
   return Val_unit;
 }
 
@@ -210,7 +210,7 @@ CAMLprim value ml_qfs_rename(value v, value v_old, value v_new, value v_overwrit
 {
   int ret = ml_client::get(v)->Rename(String_val(v_old), String_val(v_new), Bool_val(v_overwrite));
   if (0 != ret)
-    unix_error(ret,"Qfs.rename",v_old); // -1
+    unix_error(-ret,"Qfs.rename",v_old); // -1
   return Val_unit;
 }
 
@@ -232,7 +232,7 @@ CAMLprim value ml_qfs_stat(value v, value v_path)
   KfsFileAttr st;
   int ret = ml_client::get(v)->Stat(String_val(v_path), st, true);
   if (0 != ret)
-    unix_error(ret,"Qfs.stat",v_path);
+    unix_error(-ret,"Qfs.stat",v_path);
   return make_stat(st);
 }
 
@@ -241,7 +241,7 @@ CAMLprim value ml_qfs_fstat(value v, value v_file)
   KfsFileAttr st;
   int ret = ml_client::get(v)->Stat(File_val(v_file), st);
   if (0 != ret)
-    unix_error(ret,"Qfs.fstat",Nothing);
+    unix_error(-ret,"Qfs.fstat",Nothing);
   return make_stat(st);
 }
 
