@@ -144,7 +144,7 @@ CAMLprim value ml_qfs_is_directory(value v, value v_path)
 CAMLprim value ml_qfs_create(value v, value v_path, value v_exclusive, value v_params)
 {
   int ret = ml_client::get(v)->Create((const char*)String_val(v_path), (bool)Bool_val(v_exclusive), (const char*)String_val(v_params));
-  if (0 != ret)
+  if (ret < 0)
     unix_error(ret,"Qfs.create",v_path);
   return Val_file(ret);
 }
@@ -153,7 +153,7 @@ CAMLprim value ml_qfs_open(value v, value v_path, value v_flags, value v_params)
 {
   int flags = unix_open_flags(v_flags);
   int ret = ml_client::get(v)->Open((const char*)String_val(v_path), flags, (const char*)String_val(v_params));
-  if (0 != ret)
+  if (ret < 0)
     unix_error(ret,"Qfs.open",v_path);
   return Val_file(ret);
 }
