@@ -8,6 +8,7 @@ let init () =
 type client
 type file
 type stat = {
+  name : string;
   size : int;
   mtime : float;
   is_dir : bool;
@@ -23,9 +24,13 @@ external create : client -> string -> excl:bool -> params:string -> file = "ml_q
 external openfile : client -> string -> Unix.open_flag list -> params:string -> file = "ml_qfs_open"
 external close : client -> file -> unit = "ml_qfs_close"
 external readdir : client -> string -> string array = "ml_qfs_readdir"
+external readdir_plus : client -> string -> bool -> stat array = "ml_qfs_readdir_plus"
 external remove : client -> string -> unit = "ml_qfs_remove"
 external rmdir : client -> string -> unit = "ml_qfs_rmdir"
 external sync : client -> file -> unit = "ml_qfs_sync"
 external rename : client -> string -> string -> bool -> unit = "ml_qfs_rename"
-external stat : client -> string -> stat = "ml_qfs_stat"
+external stat : client -> string -> bool -> stat = "ml_qfs_stat"
 external fstat : client -> file -> stat = "ml_qfs_fstat"
+
+let stat fs ?(size=true) path = stat fs path size
+let readdir_plus fs ?(size=true) path = readdir_plus fs path size

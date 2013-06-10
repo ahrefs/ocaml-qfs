@@ -219,18 +219,19 @@ value make_stat(KfsFileAttr const& st)
   CAMLparam0();
   CAMLlocal1(v_st);
 
-  v_st = caml_alloc_tuple(3);
-  Store_field(v_st, 0, Val_int(st.fileSize));
-  Store_field(v_st, 1, caml_copy_double((double) st.mtime.tv_sec + (double) st.mtime.tv_usec / 1e6));
-  Store_field(v_st, 2, Val_bool(st.isDirectory));
+  v_st = caml_alloc_tuple(4);
+  Store_field(v_st, 0, value_of_string(st.filename));
+  Store_field(v_st, 1, Val_int(st.fileSize));
+  Store_field(v_st, 2, caml_copy_double((double) st.mtime.tv_sec + (double) st.mtime.tv_usec / 1e6));
+  Store_field(v_st, 3, Val_bool(st.isDirectory));
 
   CAMLreturn(v_st);
 }
 
-CAMLprim value ml_qfs_stat(value v, value v_path)
+CAMLprim value ml_qfs_stat(value v, value v_path, value v_filesize)
 {
   KfsFileAttr st;
-  int ret = ml_client::get(v)->Stat(String_val(v_path), st, true);
+  int ret = ml_client::get(v)->Stat(String_val(v_path), st, Bool_val(v_filesize));
   if (0 != ret)
     unix_error(-ret,"Qfs.stat",v_path);
   return make_stat(st);
@@ -243,6 +244,22 @@ CAMLprim value ml_qfs_fstat(value v, value v_file)
   if (0 != ret)
     unix_error(-ret,"Qfs.fstat",Nothing);
   return make_stat(st);
+}
+
+CAMLprim value ml_qfs_readdir_plus(value v, value v_path, value v_filesize)
+{
+  CAMLparam3(v, v_path, v_filesize);
+  CAMLlocal1(v_arr);
+  std::vector<KfsFileAttr> result;
+  int ret = ml_client::get(v)->ReaddirPlus(String_val(v_path), result, Bool_val(v_filesize));
+  if (0 != ret)
+    unix_error(-ret,"Qfs.readdir_plus",v_path);
+  v_arr = caml_alloc_tuple(result.size());
+  for (size_t i = 0; i < result.size(); i++)
+  {
+    Store_field(v_arr, i, make_stat(result[i]));
+  }
+  CAMLreturn(v_arr);
 }
 
 } // extern "C"
