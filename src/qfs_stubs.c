@@ -171,7 +171,13 @@ CAMLprim value ml_qfs_readdir(value v, value v_path)
   CAMLparam2(v, v_path);
   CAMLlocal1(v_arr);
   std::vector<std::string> result;
-  int ret = ml_client::get(v)->Readdir(String_val(v_path), result);
+  int ret = 0;
+  do
+  {
+    std::string path = get_string(v_path);
+    caml_blocking_section lock;
+    ret = ml_client::get(v)->Readdir(path.c_str(), result);
+  } while (0);
   if (0 != ret)
     unix_error(-ret,"Qfs.readdir",v_path);
   v_arr = caml_alloc_tuple(result.size());
@@ -251,7 +257,13 @@ CAMLprim value ml_qfs_readdir_plus(value v, value v_path, value v_filesize)
   CAMLparam3(v, v_path, v_filesize);
   CAMLlocal1(v_arr);
   std::vector<KfsFileAttr> result;
-  int ret = ml_client::get(v)->ReaddirPlus(String_val(v_path), result, Bool_val(v_filesize));
+  int ret = 0;
+  do {
+    std::string path = get_string(v_path);
+    caml_blocking_section lock;
+    ret = ml_client::get(v)->ReaddirPlus(path.c_str(), result, Bool_val(v_filesize));
+  }
+  while (0);
   if (0 != ret)
     unix_error(-ret,"Qfs.readdir_plus",v_path);
   v_arr = caml_alloc_tuple(result.size());
