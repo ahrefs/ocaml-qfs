@@ -16,8 +16,8 @@ Library qfs
   Path: src
   Modules: Qfs
   BuildDepends: unix
-  CCopt: -x c++ -Wall -Wno-write-strings -I /home/ygrek/work/contrib/qfs/build/release/include
-  CClib: -lqfs_client -lqfs_io -lqfs_qcdio -lqfs_qcrs -lqfs_common -lpthread -L/home/ygrek/work/contrib/qfs/build/release/lib
+  CCopt: -x c++ -Wall -Wno-write-strings
+  CClib: -lqfs_client -lqfs_io -lqfs_qcdio -lqfs_qcrs -lqfs_common -lpthread
   CSources: qfs_stubs.c, cxx_wrapped.h
 
 Executable example

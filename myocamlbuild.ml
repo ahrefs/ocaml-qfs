@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: cd6955801b54eb1a62458fdfbae6797a) *)
+(* DO NOT EDIT (digest: 679783de3a7d1d8c9423e9ca8222703e) *)
 module OASISGettext = struct
 (* # 21 "src/oasis/OASISGettext.ml" *)
 
@@ -493,11 +493,7 @@ let package_default =
                       A "-ccopt";
                       A "-Wall";
                       A "-ccopt";
-                      A "-Wno-write-strings";
-                      A "-ccopt";
-                      A "-I";
-                      A "-ccopt";
-                      A "/home/ygrek/work/contrib/qfs/build/release/include"
+                      A "-Wno-write-strings"
                    ])
             ]);
           (["oasis_library_qfs_cclib"; "link"],
@@ -516,9 +512,7 @@ let package_default =
                       A "-cclib";
                       A "-lqfs_common";
                       A "-cclib";
-                      A "-lpthread";
-                      A "-cclib";
-                      A "-L/home/ygrek/work/contrib/qfs/build/release/lib"
+                      A "-lpthread"
                    ])
             ]);
           (["oasis_library_qfs_cclib"; "ocamlmklib"; "c"],
@@ -531,8 +525,7 @@ let package_default =
                       A "-lqfs_qcdio";
                       A "-lqfs_qcrs";
                       A "-lqfs_common";
-                      A "-lpthread";
-                      A "-L/home/ygrek/work/contrib/qfs/build/release/lib"
+                      A "-lpthread"
                    ])
             ])
        ];
@@ -542,6 +535,6 @@ let package_default =
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 546 "myocamlbuild.ml"
+# 539 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;
