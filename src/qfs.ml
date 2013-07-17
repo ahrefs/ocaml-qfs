@@ -31,6 +31,7 @@ external sync : client -> file -> unit = "ml_qfs_sync"
 external rename : client -> string -> string -> bool -> unit = "ml_qfs_rename"
 external stat : client -> string -> bool -> stat = "ml_qfs_stat"
 external fstat : client -> file -> stat = "ml_qfs_fstat"
+external set_skip_holes : client -> file -> unit = "ml_qfs_skip_holes"
 
 let stat fs ?(size=true) path = stat fs path size
 let readdir_plus fs ?(size=true) path = readdir_plus fs path size

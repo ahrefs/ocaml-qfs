@@ -302,4 +302,10 @@ CAMLprim value ml_qfs_pread_bytecode(value * argv, int argn)
   return ml_qfs_pread(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
 }
 
+CAMLprim value ml_qfs_skip_holes(value v, value v_file)
+{
+  ml_client::get(v)->SkipHolesInFile(File_val(v_file));
+  return Val_unit;
+}
+
 } // extern "C"
