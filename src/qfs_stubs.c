@@ -278,4 +278,28 @@ CAMLprim value ml_qfs_readdir_plus(value v, value v_path, value v_filesize)
   CAMLreturn(v_arr);
 }
 
+CAMLprim value ml_qfs_read(value v, value v_file, value v_buf, value v_ofs, value v_bytes)
+{
+  CAMLparam5(v, v_file, v_buf, v_ofs, v_bytes);
+  int ret = ml_client::get(v)->Read(File_val(v_file), String_val(v_buf) + Int_val(v_ofs), Int_val(v_bytes));
+  if (ret < 0)
+    unix_error(-ret,"Qfs.read",Nothing);
+  CAMLreturn(Val_int(ret));
+}
+
+CAMLprim value ml_qfs_pread(value v, value v_file, value v_pos, value v_buf, value v_ofs, value v_bytes)
+{
+  CAMLparam5(v, v_file, v_pos, v_buf, v_ofs);
+  CAMLxparam1(v_bytes);
+  int ret = ml_client::get(v)->PRead(File_val(v_file), Int_val(v_pos), String_val(v_buf) + Int_val(v_ofs), Int_val(v_bytes));
+  if (ret < 0)
+    unix_error(-ret,"Qfs.pread",Nothing);
+  CAMLreturn(Val_int(ret));
+}
+
+CAMLprim value ml_qfs_pread_bytecode(value * argv, int argn)
+{
+  return ml_qfs_pread(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
+}
+
 } // extern "C"
