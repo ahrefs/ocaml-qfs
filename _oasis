@@ -5,7 +5,7 @@ License:     LGPL-2.1 with OCaml linking exception
 Authors:     ygrek
 Copyrights:  (C) 2013 ygrek
 Homepage:    http://qfs.forge.ocamlcore.org/
-BuildTools:  ocamlbuild, camlidl
+BuildTools:  ocamlbuild
 Plugins:     DevFiles (0.3), META (0.3)
 
 Synopsis:    qfs bindings
