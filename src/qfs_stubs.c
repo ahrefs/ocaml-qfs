@@ -308,4 +308,40 @@ CAMLprim value ml_qfs_skip_holes(value v, value v_file)
   return Val_unit;
 }
 
+
+CAMLprim value ml_qfs_get_default_iobuffer_size(value v)
+{
+  return Val_int(ml_client::get(v)->GetDefaultIoBufferSize());
+}
+CAMLprim value ml_qfs_set_default_iobuffer_size(value v, value v_size)
+{
+  return Val_int(ml_client::get(v)->SetDefaultIoBufferSize(Int_val(v_size)));
+}
+CAMLprim value ml_qfs_get_iobuffer_size(value v, value v_file)
+{
+  return Val_int(ml_client::get(v)->GetIoBufferSize(File_val(v_file)));
+}
+CAMLprim value ml_qfs_set_iobuffer_size(value v, value v_file, value v_size)
+{
+  return Val_int(ml_client::get(v)->SetIoBufferSize(File_val(v_file),Int_val(v_size)));
+}
+
+
+CAMLprim value ml_qfs_get_default_readahead_size(value v)
+{
+  return Val_int(ml_client::get(v)->GetDefaultReadAheadSize());
+}
+CAMLprim value ml_qfs_set_default_readahead_size(value v, value v_size)
+{
+  return Val_int(ml_client::get(v)->SetDefaultReadAheadSize(Int_val(v_size)));
+}
+CAMLprim value ml_qfs_get_readahead_size(value v, value v_file)
+{
+  return Val_int(ml_client::get(v)->GetReadAheadSize(File_val(v_file)));
+}
+CAMLprim value ml_qfs_set_readahead_size(value v, value v_file, value v_size)
+{
+  return Val_int(ml_client::get(v)->SetReadAheadSize(File_val(v_file),Int_val(v_size)));
+}
+
 } // extern "C"

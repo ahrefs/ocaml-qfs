@@ -33,6 +33,16 @@ external stat : client -> string -> bool -> stat = "ml_qfs_stat"
 external fstat : client -> file -> stat = "ml_qfs_fstat"
 external set_skip_holes : client -> file -> unit = "ml_qfs_skip_holes"
 
+external get_default_iobuffer_size : client -> int = "ml_qfs_get_default_iobuffer_size"
+external set_default_iobuffer_size : client -> int -> int = "ml_qfs_set_default_iobuffer_size"
+external get_iobuffer_size : client -> file -> int = "ml_qfs_get_iobuffer_size"
+external set_iobuffer_size : client -> file -> int -> int = "ml_qfs_set_iobuffer_size"
+
+external get_default_readahead_size : client -> int = "ml_qfs_get_default_readahead_size"
+external set_default_readahead_size : client -> int -> int = "ml_qfs_set_default_readahead_size"
+external get_readahead_size : client -> file -> int = "ml_qfs_get_readahead_size"
+external set_readahead_size : client -> file -> int -> int = "ml_qfs_set_readahead_size"
+
 let stat fs ?(size=true) path = stat fs path size
 let readdir_plus fs ?(size=true) path = readdir_plus fs path size
 
