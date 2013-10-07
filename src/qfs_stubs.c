@@ -110,6 +110,12 @@ CAMLprim value ml_qfs_connect(value v_host, value v_port)
   return ml_client::alloc(p);
 }
 
+CAMLprim value ml_qfs_release(value v)
+{
+  ml_client::release(v);
+  return Val_unit;
+}
+
 CAMLprim value ml_qfs_mkdirs(value v, value v_dir)
 {
   int ret = ml_client::get(v)->Mkdirs(String_val(v_dir));

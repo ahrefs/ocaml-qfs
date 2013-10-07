@@ -15,6 +15,7 @@ type stat = {
 }
 
 external connect : string -> int -> client = "ml_qfs_connect"
+external release : client -> unit = "ml_qfs_release"
 external mkdir : client -> string -> unit = "ml_qfs_mkdir"
 external mkdirs : client -> string -> unit = "ml_qfs_mkdirs"
 external exists : client -> string -> bool = "ml_qfs_exists"
