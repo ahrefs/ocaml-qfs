@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 679783de3a7d1d8c9423e9ca8222703e) *)
+(* DO NOT EDIT (digest: ec6cd7ef7e1c2c20f1cdaf1515eaaa82) *)
 module OASISGettext = struct
 (* # 21 "src/oasis/OASISGettext.ml" *)
 
@@ -502,6 +502,8 @@ let package_default =
                  S
                    [
                       A "-cclib";
+                      A "-lstdc++";
+                      A "-cclib";
                       A "-lqfs_client";
                       A "-cclib";
                       A "-lqfs_io";
@@ -520,6 +522,7 @@ let package_default =
                (OASISExpr.EBool true,
                  S
                    [
+                      A "-lstdc++";
                       A "-lqfs_client";
                       A "-lqfs_io";
                       A "-lqfs_qcdio";
@@ -535,6 +538,6 @@ let package_default =
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 539 "myocamlbuild.ml"
+# 542 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;
