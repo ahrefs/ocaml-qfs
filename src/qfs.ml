@@ -34,15 +34,23 @@ external stat : client -> string -> bool -> stat = "ml_qfs_stat"
 external fstat : client -> file -> stat = "ml_qfs_fstat"
 external set_skip_holes : client -> file -> unit = "ml_qfs_skip_holes"
 
-external get_default_iobuffer_size : client -> int = "ml_qfs_get_default_iobuffer_size"
-external set_default_iobuffer_size : client -> int -> int = "ml_qfs_set_default_iobuffer_size"
+external get_default_iobuffer_size : client -> int = "ml_qfs_GetDefaultIoBufferSize"
+external set_default_iobuffer_size : client -> int -> int = "ml_qfs_SetDefaultIoBufferSize"
 external get_iobuffer_size : client -> file -> int = "ml_qfs_get_iobuffer_size"
 external set_iobuffer_size : client -> file -> int -> int = "ml_qfs_set_iobuffer_size"
 
-external get_default_readahead_size : client -> int = "ml_qfs_get_default_readahead_size"
-external set_default_readahead_size : client -> int -> int = "ml_qfs_set_default_readahead_size"
+external get_default_readahead_size : client -> int = "ml_qfs_GetDefaultReadAheadSize"
+external set_default_readahead_size : client -> int -> int = "ml_qfs_SetDefaultReadAheadSize"
 external get_readahead_size : client -> file -> int = "ml_qfs_get_readahead_size"
 external set_readahead_size : client -> file -> int -> int = "ml_qfs_set_readahead_size"
+
+(** in seconds *)
+external get_default_io_timeout : client -> int = "ml_qfs_GetDefaultIOTimeout"
+external set_default_io_timeout : client -> int -> unit = "ml_qfs_SetDefaultIOTimeout"
+external get_retry_delay : client -> int = "ml_qfs_GetRetryDelay"
+external set_retry_delay : client -> int -> unit = "ml_qfs_SetRetryDelay"
+external get_max_retry_per_op : client -> int = "ml_qfs_GetMaxRetryPerOp"
+external set_max_retry_per_op : client -> int -> unit = "ml_qfs_SetMaxRetryPerOp"
 
 let stat fs ?(size=true) path = stat fs path size
 let readdir_plus fs ?(size=true) path = readdir_plus fs path size
