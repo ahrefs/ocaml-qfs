@@ -1,11 +1,11 @@
 
 #include "cxx_wrapped.h"
-
+#include <boost/smart_ptr.hpp>
 #include <kfs/KfsClient.h>
 
 using namespace KFS;
 
-typedef wrapped_ptr<KfsClient> ml_client;
+typedef wrapped<boost::shared_ptr<KfsClient> > ml_client;
 
 template<>
 char const* ml_name<ml_client::type>() { return "KfsClient"; }
@@ -98,14 +98,14 @@ static void raise_error(char const* message)
 CAMLprim value ml_qfs_connect(value v_host, value v_port)
 {
   std::string const& host = get_string(v_host);
-  KfsClient* p = NULL;
+  boost::shared_ptr<KfsClient> p;
 
   do {
     caml_blocking_section lock;
-    p = Connect(host,Int_val(v_port));
+    p.reset(Connect(host,Int_val(v_port)));
   } while (0);
 
-  if (NULL == p) raise_error("connect");
+  if (!p) raise_error("connect");
 
   return ml_client::alloc(p);
 }
@@ -181,7 +181,7 @@ CAMLprim value ml_qfs_readdir(value v, value v_path)
 
   do {
     std::string path = get_string(v_path);
-    KfsClient* p = ml_client::get(v);
+    ml_client::type p = ml_client::get(v);
     caml_blocking_section lock;
     ret = p->Readdir(path.c_str(), result);
   } while(0);
@@ -269,7 +269,7 @@ CAMLprim value ml_qfs_readdir_plus(value v, value v_path, value v_filesize)
 
   do {
     std::string path = get_string(v_path);
-    KfsClient* p = ml_client::get(v);
+    ml_client::type p = ml_client::get(v);
     caml_blocking_section lock;
     ret = p->ReaddirPlus(path.c_str(), result, Bool_val(v_filesize));
   } while (0);
