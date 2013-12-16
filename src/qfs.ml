@@ -34,6 +34,8 @@ external stat : client -> string -> bool -> stat = "ml_qfs_stat"
 external fstat : client -> file -> stat = "ml_qfs_fstat"
 external set_skip_holes : client -> file -> unit = "ml_qfs_skip_holes"
 
+external get_metaserver_location : client -> string * int = "ml_qfs_get_metaserver_location"
+
 external get_default_iobuffer_size : client -> int = "ml_qfs_GetDefaultIoBufferSize"
 external set_default_iobuffer_size : client -> int -> int = "ml_qfs_SetDefaultIoBufferSize"
 external get_iobuffer_size : client -> file -> int = "ml_qfs_get_iobuffer_size"

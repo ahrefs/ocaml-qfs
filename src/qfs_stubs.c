@@ -354,4 +354,15 @@ INT_PARAM(DefaultIOTimeout,RETURN_VOID)
 INT_PARAM(RetryDelay,RETURN_VOID)
 INT_PARAM(MaxRetryPerOp,RETURN_VOID)
 
+CAMLprim value ml_qfs_get_metaserver_location(value v)
+{
+  CAMLparam1(v);
+  CAMLlocal1(v_r);
+  ServerLocation loc = ml_client::get(v)->GetMetaserverLocation();
+  v_r = caml_alloc_tuple(2);
+  Store_field(v_r, 0, value_of_string(loc.hostname));
+  Store_field(v_r, 1, Val_int(loc.port));
+  CAMLreturn(v_r);
+}
+
 } // extern "C"
