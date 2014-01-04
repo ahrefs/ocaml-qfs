@@ -514,7 +514,7 @@ let package_default =
                       A "-cclib";
                       A "-lqfs_common";
                       A "-cclib";
-                      A "-lpthread"
+                      A "-pthread"
                    ])
             ]);
           (["oasis_library_qfs_cclib"; "ocamlmklib"; "c"],
@@ -528,7 +528,7 @@ let package_default =
                       A "-lqfs_qcdio";
                       A "-lqfs_qcrs";
                       A "-lqfs_common";
-                      A "-lpthread"
+                      A "-pthread"
                    ])
             ])
        ];

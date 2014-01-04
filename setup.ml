@@ -5661,7 +5661,7 @@ let setup_t =
                                 "-lqfs_qcdio";
                                 "-lqfs_qcrs";
                                 "-lqfs_common";
-                                "-lpthread"
+                                "-pthread"
                              ])
                         ];
                       bs_dlllib = [(OASISExpr.EBool true, [])];
