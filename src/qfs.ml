@@ -8,11 +8,26 @@ let init () =
 type client
 type file
 type stat = {
+  fileid : int64; (** inode *)
   name : string;
-  size : int;
-  mtime : float;
+  size : int; (** logical eof *)
+  mtime : float; (** modification time *)
+  ctime : float; (** attribute change time *)
+  crtime : float; (** creation time *)
   is_dir : bool;
+  subcount1 : int; (** number of chunks in the file or files in directory *)
+  subcount2 : int; (** directories count *)
 }
+(*
+    int16_t         numReplicas;
+    int16_t         numStripes;
+    int16_t         numRecoveryStripes;
+    StripedFileType striperType;
+    int32_t         stripeSize;
+    kfsSTier_t      minSTier;
+    kfsSTier_t      maxSTier;
+*)
+
 
 external connect : string -> int -> client = "ml_qfs_connect"
 external release : client -> unit = "ml_qfs_release"

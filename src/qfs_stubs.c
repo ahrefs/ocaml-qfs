@@ -233,11 +233,16 @@ value make_stat(KfsFileAttr const& st)
   CAMLparam0();
   CAMLlocal1(v_st);
 
-  v_st = caml_alloc_tuple(4);
-  Store_field(v_st, 0, value_of_string(st.filename));
-  Store_field(v_st, 1, Val_int(st.fileSize));
-  Store_field(v_st, 2, caml_copy_double((double) st.mtime.tv_sec + (double) st.mtime.tv_usec / 1e6));
-  Store_field(v_st, 3, Val_bool(st.isDirectory));
+  v_st = caml_alloc_tuple(9);
+  Store_field(v_st, 0, caml_copy_int64(st.fileId));
+  Store_field(v_st, 1, value_of_string(st.filename));
+  Store_field(v_st, 2, Val_int(st.fileSize));
+  Store_field(v_st, 3, caml_copy_double((double) st.mtime.tv_sec + (double) st.mtime.tv_usec / 1e6));
+  Store_field(v_st, 4, caml_copy_double((double) st.ctime.tv_sec + (double) st.ctime.tv_usec / 1e6));
+  Store_field(v_st, 5, caml_copy_double((double) st.crtime.tv_sec + (double) st.crtime.tv_usec / 1e6));
+  Store_field(v_st, 6, Val_bool(st.isDirectory));
+  Store_field(v_st, 7, Val_int(st.subCount1));
+  Store_field(v_st, 8, Val_int(st.subCount2));
 
   CAMLreturn(v_st);
 }
