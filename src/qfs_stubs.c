@@ -359,15 +359,92 @@ INT_PARAM(DefaultIOTimeout,RETURN_VOID)
 INT_PARAM(RetryDelay,RETURN_VOID)
 INT_PARAM(MaxRetryPerOp,RETURN_VOID)
 
+value make_location(ServerLocation const& loc)
+{
+  CAMLparam0();
+  CAMLlocal1(v);
+
+  v = caml_alloc_tuple(2);
+  Store_field(v, 0, value_of_string(loc.hostname));
+  Store_field(v, 1, Val_int(loc.port));
+  CAMLreturn(v);
+}
+
 CAMLprim value ml_qfs_get_metaserver_location(value v)
 {
   CAMLparam1(v);
   CAMLlocal1(v_r);
-  ServerLocation loc = ml_client::get(v)->GetMetaserverLocation();
-  v_r = caml_alloc_tuple(2);
-  Store_field(v_r, 0, value_of_string(loc.hostname));
-  Store_field(v_r, 1, Val_int(loc.port));
+  v_r = make_location(ml_client::get(v)->GetMetaserverLocation());
   CAMLreturn(v_r);
+}
+
+value make_block_info(KfsClient::BlockInfo const& b)
+{
+  CAMLparam0();
+  CAMLlocal1(v);
+
+  v = caml_alloc_tuple(5);
+  Store_field(v, 0, caml_copy_int64(b.offset));
+  Store_field(v, 1, caml_copy_int64(b.id));
+  Store_field(v, 2, Val_int(b.version));
+  Store_field(v, 3, make_location(b.server));
+  Store_field(v, 4, Val_int(b.size));
+
+  CAMLreturn(v);
+}
+
+CAMLprim value ml_qfs_EnumerateBlocks(value v, value v_path)
+{
+  CAMLparam2(v, v_path);
+  CAMLlocal1(v_res);
+  KfsClient::BlockInfos blocks;
+  int ret = 0;
+
+  do {
+    std::string const path = get_string(v_path);
+    ml_client::type p = ml_client::get(v);
+    caml_blocking_section lock;
+    ret = p->EnumerateBlocks(path.c_str(), blocks);
+  } while (0);
+
+  if (0 != ret)
+    unix_error(-ret,"Qfs.enumerate_blocks",v_path);
+
+  v_res = caml_alloc_tuple(blocks.size());
+  for (size_t i = 0; i < blocks.size(); i++)
+  {
+    Store_field(v_res, i, make_block_info(blocks[i]));
+  }
+
+  CAMLreturn(v_res);
+}
+
+CAMLprim value ml_qfs_GetFileOrChunkInfo(value v, value v_file, value v_chunk)
+{
+  CAMLparam3(v,v_file,v_chunk);
+  CAMLlocal2(v_res,v_servers);
+  KfsFileAttr attr;
+  chunkOff_t offset;
+  int64_t chunkVersion;
+  vector<ServerLocation> servers;
+ 
+  int ret = ml_client::get(v)->GetFileOrChunkInfo(Int64_val(v_file),Int64_val(v_chunk),attr,offset,chunkVersion,servers);
+  if (0 != ret)
+    unix_error(-ret,"Qfs.get_file_or_chunk_info",Nothing);
+
+  v_servers = caml_alloc_tuple(servers.size());
+  for (size_t i = 0; i < servers.size(); i++)
+  {
+    Store_field(v_servers,i,make_location(servers[i]));
+  }
+
+  v_res = caml_alloc_tuple(4);
+  Store_field(v_res,0,make_stat(attr));
+  Store_field(v_res,1,caml_copy_int64(offset));
+  Store_field(v_res,2,Val_int(chunkVersion));
+  Store_field(v_res,3,v_servers);
+
+  CAMLreturn(v_res);
 }
 
 } // extern "C"

@@ -89,3 +89,23 @@ let read fs file ?pos n =
   | Some pos -> pread_unsafe fs file pos s 0 n
   in
   if n = String.length s then s else String.sub s 0 n
+
+type block_info =
+{
+  offset : int64;
+  chunkid : int64;
+  version : int;
+  server : (string * int);
+  chunk_size : int;
+}
+
+let show_location (host,port) = Printf.sprintf "%s:%d" host port
+
+let show_block_info { offset; chunk_size; chunkid; version; server; } =
+  Printf.sprintf "%Ld.%d %d@%Ld %s" chunkid version chunk_size offset (show_location server)
+
+(** only for testing/debugging!
+  NB synchronous communication *)
+external enumerate_blocks : client -> string -> block_info array = "ml_qfs_EnumerateBlocks"
+
+external get_file_or_chunk_info : client -> int64 -> int64 -> stat * int64 * int * (string * int) array = "ml_qfs_GetFileOrChunkInfo"
