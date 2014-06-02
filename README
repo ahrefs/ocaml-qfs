@@ -1,6 +1,9 @@
 Bindings to libqfs
 ==================
 
+Building
+--------
+
 The C library lives at https://github.com/quantcast/qfs
 After building the C library make the includes and libraries visible to the system,
 as follows:
@@ -8,3 +11,9 @@ as follows:
   ln -s $QFS_DIR/build/release/include/kfs /usr/include/kfs
   cp $QFS_DIR/build/release/lib/*.so /usr/local/lib
   ldconfig
+
+License
+-------
+
+This library is distributed under the terms of the GNU LGPL version 2.1
+(with OCaml linking exception).  See LICENSE file for full license text.
