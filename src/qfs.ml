@@ -90,6 +90,29 @@ let read fs file ?pos n =
   in
   if n = String.length s then s else String.sub s 0 n
 
+external write_unsafe : client -> file -> string -> int -> int -> int = "ml_qfs_write"
+external pwrite_unsafe : client -> file -> int -> string -> int -> int -> int = "ml_qfs_pwrite_bytecode" "ml_qfs_pwrite"
+
+let write_sub_once fs file ?pos s ofs n =
+  if ofs < 0 || n < 0 || ofs > String.length s || n > String.length s - ofs then invalid_arg "Qfs.write_sub_once";
+  match pos with
+  | None -> write_unsafe fs file s ofs n
+  | Some pos -> pwrite_unsafe fs file pos s ofs n
+
+let write_sub fs file ?pos s ofs n =
+  let rec loop written =
+    if written = n then
+      ()
+    else
+      match write_sub_once fs file ?pos s (ofs+written) (n-written) with
+      | m when m < 0 -> assert false
+      | 0 -> raise (Error (Printf.sprintf "Qfs.write_sub stalled at %d of %d" written n))
+      | m -> loop (written + m)
+  in
+  loop 0
+
+let write fs file ?pos s = write_sub fs file ?pos s 0 (String.length s)
+
 type block_info =
 {
   offset : int64;
