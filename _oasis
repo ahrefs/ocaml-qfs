@@ -17,7 +17,7 @@ Library qfs
   Modules: Qfs
   BuildDepends: unix
   CCopt: -x c++ -Wall -Wno-write-strings
-  CClib: -lstdc++ -lqfs_client -lqfs_io -lqfs_qcdio -lqfs_qcrs -lqfs_common -pthread
+  CClib: -lstdc++ -lqfs_client -lqfs_io -lqfs_qcdio -lqfs_qcrs -lqfs_common
   CSources: qfs_stubs.c, cxx_wrapped.h
 
 Executable example

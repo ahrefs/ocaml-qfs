@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 911547b96596139415497b53dd0f8e86) *)
+(* DO NOT EDIT (digest: 6ae6b17d7ccf9f50ba734482fee408bc) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -642,9 +642,7 @@ let package_default =
                       A "-cclib";
                       A "-lqfs_qcrs";
                       A "-cclib";
-                      A "-lqfs_common";
-                      A "-cclib";
-                      A "-pthread"
+                      A "-lqfs_common"
                    ])
             ]);
           (["oasis_library_qfs_cclib"; "ocamlmklib"; "c"],
@@ -657,8 +655,7 @@ let package_default =
                       A "-lqfs_io";
                       A "-lqfs_qcdio";
                       A "-lqfs_qcrs";
-                      A "-lqfs_common";
-                      A "-pthread"
+                      A "-lqfs_common"
                    ])
             ])
        ];
@@ -670,6 +667,11 @@ let conf = {MyOCamlbuildFindlib.no_automatic_syntax = false}
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default conf package_default;;
 
-# 674 "myocamlbuild.ml"
+# 671 "myocamlbuild.ml"
 (* OASIS_STOP *)
+
+(* ocamlmklib doesn't understand -pthread anyway and ocamlfind will complain,
+  so just pass it directly to be stored in cma *)
+flag [ "link"; "oasis_library_qfs_cclib"; ] & S[A"-cclib";A"-pthread"];;
+
 Ocamlbuild_plugin.dispatch dispatch_default;;
