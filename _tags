@@ -1,8 +1,9 @@
 # OASIS_START
-# DO NOT EDIT (digest: 961148198066aa37184f21660cb63a2a)
-# Ignore VCS directories, you can use the same kind of rule outside 
-# OASIS_START/STOP if you want to exclude directories that contains 
+# DO NOT EDIT (digest: 51d4473e237abaff3a0df9f0bba50c06)
+# Ignore VCS directories, you can use the same kind of rule outside
+# OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
+true: annot, bin_annot
 <**/.svn>: -traverse
 <**/.svn>: not_hygienic
 ".bzr": -traverse
@@ -15,7 +16,7 @@
 "_darcs": not_hygienic
 # Library qfs
 "src/qfs.cmxs": use_qfs
-<src/*.ml{,i}>: oasis_library_qfs_ccopt
+<src/*.ml{,i,y}>: oasis_library_qfs_ccopt
 "src/qfs_stubs.c": oasis_library_qfs_ccopt
 <src/qfs.{cma,cmxa}>: oasis_library_qfs_cclib
 "src/libqfs_stubs.lib": oasis_library_qfs_cclib
@@ -25,8 +26,8 @@
 <src/qfs.{cma,cmxa}>: use_libqfs_stubs
 "src/qfs_stubs.c": pkg_unix
 # Executable example
-<src/example.{native,byte}>: use_qfs
 <src/example.{native,byte}>: pkg_unix
-<src/*.ml{,i}>: use_qfs
-<src/*.ml{,i}>: pkg_unix
+<src/example.{native,byte}>: use_qfs
+<src/*.ml{,i,y}>: pkg_unix
+<src/*.ml{,i,y}>: use_qfs
 # OASIS_STOP
