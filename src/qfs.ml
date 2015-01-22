@@ -1,9 +1,15 @@
 
 exception Error of string
 
-let init () =
-  Callback.register_exception "Qfs.Error" (Error "");
-  ()
+let init =
+  let registered = ref false in
+  fun () ->
+    if not !registered then
+      Callback.register_exception "Qfs.Error" (Error "");
+    registered := true
+
+let () =
+  init ()
 
 type client
 type file
@@ -30,6 +36,9 @@ type stat = {
 
 
 external connect : string -> int -> client = "ml_qfs_connect"
+let connect s p =
+  init (); (* http://caml.inria.fr/mantis/view.php?id=4166 *)
+  connect s p
 external release : client -> unit = "ml_qfs_release"
 external mkdir : client -> string -> unit = "ml_qfs_mkdir"
 external mkdirs : client -> string -> unit = "ml_qfs_mkdirs"
