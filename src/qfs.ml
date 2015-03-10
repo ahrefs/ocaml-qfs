@@ -81,23 +81,23 @@ external set_max_retry_per_op : client -> int -> unit = "ml_qfs_SetMaxRetryPerOp
 let stat fs ?(size=true) path = stat fs path size
 let readdir_plus fs ?(size=true) path = readdir_plus fs path size
 
-external read_unsafe : client -> file -> string -> int -> int -> int = "ml_qfs_read"
-external pread_unsafe : client -> file -> int -> string -> int -> int -> int = "ml_qfs_pread_bytecode" "ml_qfs_pread"
+external read_unsafe : client -> file -> bytes -> int -> int -> int = "ml_qfs_read"
+external pread_unsafe : client -> file -> int -> bytes -> int -> int -> int = "ml_qfs_pread_bytecode" "ml_qfs_pread"
 
 let read_buf fs file ?pos buf ?(ofs=0) n =
-  if ofs < 0 || n < 0 || String.length buf < ofs + n then invalid_arg "Qfs.read_buf";
+  if ofs < 0 || n < 0 || Bytes.length buf < ofs + n then invalid_arg "Qfs.read_buf";
   match pos with
   | None -> read_unsafe fs file buf ofs n
   | Some pos -> pread_unsafe fs file pos buf ofs n
 
 let read fs file ?pos n =
   if n < 0 then invalid_arg "Qfs.read";
-  let s = String.create n in
+  let s = Bytes.create n in
   let n = match pos with
   | None -> read_unsafe fs file s 0 n
   | Some pos -> pread_unsafe fs file pos s 0 n
   in
-  if n = String.length s then s else String.sub s 0 n
+  if n = Bytes.length s then s else Bytes.sub s 0 n
 
 external write_unsafe : client -> file -> string -> int -> int -> int = "ml_qfs_write"
 external pwrite_unsafe : client -> file -> int -> string -> int -> int -> int = "ml_qfs_pwrite_bytecode" "ml_qfs_pwrite"
