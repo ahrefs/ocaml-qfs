@@ -380,6 +380,7 @@ CAMLprim value ml_qfs_Set##name(value v, value v_set) \
 INT_PARAM(DefaultIoBufferSize,RETURN_INT)
 INT_PARAM(DefaultReadAheadSize,RETURN_INT)
 INT_PARAM(DefaultIOTimeout,RETURN_VOID)
+INT_PARAM(DefaultMetaOpTimeout,RETURN_VOID)
 INT_PARAM(RetryDelay,RETURN_VOID)
 INT_PARAM(MaxRetryPerOp,RETURN_VOID)
 

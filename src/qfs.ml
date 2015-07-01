@@ -73,6 +73,8 @@ external set_readahead_size : client -> file -> int -> int = "ml_qfs_set_readahe
 (** in seconds *)
 external get_default_io_timeout : client -> int = "ml_qfs_GetDefaultIOTimeout"
 external set_default_io_timeout : client -> int -> unit = "ml_qfs_SetDefaultIOTimeout"
+external get_default_meta_op_timeout : client -> int = "ml_qfs_GetDefaultMetaOpTimeout"
+external set_default_meta_op_timeout : client -> int -> unit = "ml_qfs_SetDefaultMetaOpTimeout"
 external get_retry_delay : client -> int = "ml_qfs_GetRetryDelay"
 external set_retry_delay : client -> int -> unit = "ml_qfs_SetRetryDelay"
 external get_max_retry_per_op : client -> int = "ml_qfs_GetMaxRetryPerOp"
