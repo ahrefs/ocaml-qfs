@@ -83,8 +83,8 @@ external set_max_retry_per_op : client -> int -> unit = "ml_qfs_SetMaxRetryPerOp
 let stat fs ?(size=true) path = stat fs path size
 let readdir_plus fs ?(size=true) path = readdir_plus fs path size
 
-external read_unsafe : client -> file -> bytes -> int -> int -> int = "ml_qfs_read"
-external pread_unsafe : client -> file -> int -> bytes -> int -> int -> int = "ml_qfs_pread_bytecode" "ml_qfs_pread"
+external read_unsafe : client -> file -> Bytes.t -> int -> int -> int = "ml_qfs_read"
+external pread_unsafe : client -> file -> int -> Bytes.t -> int -> int -> int = "ml_qfs_pread_bytecode" "ml_qfs_pread"
 
 let read_buf fs file ?pos buf ?(ofs=0) n =
   if ofs < 0 || n < 0 || Bytes.length buf < ofs + n then invalid_arg "Qfs.read_buf";
