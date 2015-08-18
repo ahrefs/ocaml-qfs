@@ -17,7 +17,7 @@ Description:
 Library qfs
   Path: src
   Modules: Qfs
-  BuildDepends: unix, bytes, lwt.unix
+  BuildDepends: unix, bytes, lwt.unix, extlib
   CCopt: -x c++ -Wall -Wno-write-strings
   CClib: -lstdc++ -lqfs_client -lqfs_io -lqfs_qcdio -lqfs_qcrs -lqfs_common
   CSources: qfs_stubs.c, cxx_wrapped.h

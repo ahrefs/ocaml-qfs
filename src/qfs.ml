@@ -1,5 +1,9 @@
+open Printf
 
 exception Error of string
+
+let error fmt = Printf.ksprintf (fun s -> raise (Error s)) fmt
+let error_lwt fmt = Printf.ksprintf (fun s -> Lwt.fail (Error s)) fmt
 
 let init =
   let registered = ref false in
@@ -143,3 +147,133 @@ let show_block_info { offset; chunk_size; chunkid; version; server; } =
 external enumerate_blocks : client -> string -> block_info array = "ml_qfs_EnumerateBlocks"
 
 external get_file_or_chunk_info : client -> int64 -> int64 -> stat * int64 * int * (string * int) array = "ml_qfs_GetFileOrChunkInfo"
+
+type system_info = {
+  total_space : int;
+  used_space : int;
+  free_space : int;
+  uptime : int;
+  buffers : int;
+  clients : int;
+  servers : int;
+  chunks : int;
+  total_drives : int;
+  writable_drives : int;
+  max_clients : int;
+  max_servers : int;
+  buffers_total : int;
+  pending_replication : int;
+}
+
+type server =
+{
+  host : string;
+  port : int;
+}
+
+type info =
+{
+  build_version : string;
+  source_version : string;
+  worm : bool;
+  system : system_info;
+  servers : server list;
+}
+
+open ExtLib
+
+let parse_kv ~delim s =
+  let h = Hashtbl.create 10 in
+  String.nsplit s delim |> List.iter begin fun s ->
+    match String.split s "=" with
+    | k,v -> Hashtbl.replace h String.(lowercase @@ strip k) (String.strip v)
+    | exception _ -> error "no delimiter"
+  end;
+  h
+
+let parse_servers v =
+  String.nsplit v "\t" |> List.map begin fun s ->
+    let h = parse_kv ~delim:"," s in
+    let int k = try int_of_string @@ Hashtbl.find h k with _ -> error "bad server value %S" k in
+    let str k = try Hashtbl.find h k with _ -> error "bad server value %S" k in
+    {
+      host = str "s";
+      port = int "p";
+    }
+  end
+
+let parse_system_info v =
+  let h = try parse_kv ~delim:"\t" v with Error s -> error "system info : %s" s in
+  let int k = try int_of_string @@ Hashtbl.find h k with _ -> error "bad system info value %S" k in
+  {
+    total_space = int "total space";
+    used_space = int "used space";
+    free_space = int "free space";
+    uptime = int "uptime";
+    buffers = int "buffers";
+    clients = int "clients";
+    servers = int "chunk srvs";
+    chunks = int "chunks";
+    total_drives = int "total drives";
+    writable_drives = int "writable drives";
+    max_clients = int "max clients";
+    max_servers = int "max chunk srvs";
+    buffers_total = int "buffers total";
+    pending_replication = int "pending replication";
+  }
+
+let ping client =
+  let (host,port) = get_metaserver_location client in
+  Lwt_io.with_connection Unix.(ADDR_INET (inet_addr_of_string host, port)) begin fun (cin,cout) ->
+    let%lwt () = Lwt_io.write cout "PING\r\nVersion: KFS/1.0\r\nCseq: 1\r\nClient-Protocol-Version: 114\r\n\r\n" in
+    let build_version = ref "" in
+    let source_version = ref "" in
+    let system = ref None in
+    let worm = ref false in
+    let servers = ref [] in
+    let%lwt () =
+      Lwt_io.read_lines cin |> Lwt_stream.junk_while_s begin function
+      | "" -> Lwt.return false
+      | "OK" -> Lwt.return true
+      | s ->
+        Lwt.wrap @@ fun () ->
+          try
+            match String.split s ":" with
+            | exception _ -> error "no delimiter"
+            | (k,v) ->
+            let v = String.strip v in
+            let () = match String.(lowercase @@ strip k) with
+            | "build-version" -> build_version := v
+            | "source-version" -> source_version := v
+            | "worm" -> worm := v <> "0"
+            | "system info" -> system := Some (parse_system_info v)
+            | "servers" -> servers := parse_servers v
+            | "cseq"
+            | "status" -> () (* ignore *)
+            | "retiring servers"
+            | "evacuating servers"
+            | "down servers"
+            | "rebalance status"
+            | "config"
+            | "rusage self"
+            | "rusage children"
+            | "storage tiers info"
+            | "storage tiers info names" -> () (* skip *)
+            | _ -> prerr_endline @@ sprintf "PING response: unrecognized key %S, skipping" k
+            in
+            true
+          with
+          | Error err -> error "%s in line %S" err s
+          | exn -> error "%s in line %S" (Printexc.to_string exn) s
+      end
+    in
+    let get name = function None -> error_lwt "PING: missing %s" name | Some x -> Lwt.return x in
+    let%lwt system = get "system" !system in
+    Lwt.return {
+      build_version = !build_version;
+      source_version = !source_version;
+      worm = !worm;
+      system;
+      servers = !servers;
+    }
+  end
