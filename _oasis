@@ -1,4 +1,4 @@
-OASISFormat: 0.3
+OASISFormat: 0.4
 Name:        qfs
 Version:     0.4
 License:     LGPL-2.1 with OCaml linking exception
@@ -7,7 +7,8 @@ Copyrights:  (C) 2013 Ahrefs Pte Ltd <github@ahrefs.com>
 Homepage:    https://github.com/ahrefs/ocaml-qfs
 #BugReports:  https://github.com/ahrefs/ocaml-qfs/issues
 BuildTools:  ocamlbuild
-Plugins:     DevFiles (0.3), META (0.3)
+Plugins:     DevFiles (0.4), META (0.4)
+OCamlVersion: >= 4.01.0
 
 Synopsis:    bindings to libqfs - client library to access QFS
 Description:
@@ -16,7 +17,7 @@ Description:
 Library qfs
   Path: src
   Modules: Qfs
-  BuildDepends: unix, bytes
+  BuildDepends: unix, bytes, lwt.unix
   CCopt: -x c++ -Wall -Wno-write-strings
   CClib: -lstdc++ -lqfs_client -lqfs_io -lqfs_qcdio -lqfs_qcrs -lqfs_common
   CSources: qfs_stubs.c, cxx_wrapped.h
