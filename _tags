@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: d4167e282536f34d7da54d599a11f5c4)
+# DO NOT EDIT (digest: 289fbd578a27051ede2a3d8c6f42c268)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -26,16 +26,19 @@ true: annot, bin_annot
 <src/qfs.{cma,cmxa}>: use_libqfs_stubs
 "src/qfs_stubs.c": package(bytes)
 "src/qfs_stubs.c": package(extlib)
+"src/qfs_stubs.c": package(lwt.ppx)
 "src/qfs_stubs.c": package(lwt.unix)
 "src/qfs_stubs.c": package(unix)
 # Executable example
 <src/example.{native,byte}>: package(bytes)
 <src/example.{native,byte}>: package(extlib)
+<src/example.{native,byte}>: package(lwt.ppx)
 <src/example.{native,byte}>: package(lwt.unix)
 <src/example.{native,byte}>: package(unix)
 <src/example.{native,byte}>: use_qfs
 <src/*.ml{,i,y}>: package(bytes)
 <src/*.ml{,i,y}>: package(extlib)
+<src/*.ml{,i,y}>: package(lwt.ppx)
 <src/*.ml{,i,y}>: package(lwt.unix)
 <src/*.ml{,i,y}>: package(unix)
 <src/*.ml{,i,y}>: use_qfs

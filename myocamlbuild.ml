@@ -623,9 +623,7 @@ let package_default =
                       A "-ccopt";
                       A "-Wall";
                       A "-ccopt";
-                      A "-Wno-write-strings";
-                      A "-ccopt";
-                      A "-D_GLIBCXX_USE_CXX11_ABI=0";
+                      A "-Wno-write-strings"
                    ])
             ]);
           (["oasis_library_qfs_cclib"; "link"],
