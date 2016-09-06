@@ -1,6 +1,6 @@
 // Simple template to wrap C++ object as OCaml custom value
 // Author: ygrek <ygrek@autistici.org>
-// Version: 2014-06-02
+// Version: 2015-09-25
 
 // This is free and unencumbered software released into the public domain.
 // Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -10,7 +10,7 @@
 
 // value wrapped<Ptr>::alloc(Ptr)
 //    creates custom value with pointer to C++ object inside
-//    finalizer will release pointer (whether destructor will be called 
+//    finalizer will release pointer (whether destructor will be called
 //    depends on the semantics of the pointer)
 // void wrapped<Ptr>::release(value)
 //    releases wrapped pointer
@@ -49,7 +49,8 @@ class wrapped
 private:
   struct ml_wrapped
   {
-    ml_wrapped(Ptr x, size_t t) : tag(t), p(x) {}
+    ml_wrapped(Ptr x, size_t t) : tag(t), p(x) {} // copy is ok
+    ml_wrapped(typename Ptr::element_type* x, size_t t) : tag(t), p(x) {}
     size_t tag;
     Ptr p;
   };
@@ -88,7 +89,8 @@ public:
     p.reset();
   }
 
-  static value alloc(Ptr p, size_t tag = 0) // copy is ok
+  template<class TPtr>
+  static value alloc(TPtr p, size_t tag = 0)
   {
     //printf("alloc %lx : %s\n",(size_t)p.get(),name());
     CAMLparam0();
@@ -108,8 +110,7 @@ public:
 
     v = caml_alloc_custom(&wrapped_ops, sizeof(ml_wrapped*), 0, 1);
 
-    ml_wrapped* ml = new ml_wrapped(p,tag); //(ml_wrapped*)caml_stat_alloc(sizeof(ml_wrapped));
-    Wrapped_val(v) = ml;
+    Wrapped_val(v) = new ml_wrapped(p, tag);
 
     count_++;
 
@@ -123,17 +124,27 @@ public:
 template<class T>
 size_t wrapped<T>::count_ = 0;
 
-template<class T>
-struct wrapped_ptr : public wrapped<std::auto_ptr<T> >
+template <typename T>
+struct raw_ptr
 {
-  typedef wrapped<std::auto_ptr<T> > base;
+#if __cplusplus >= 201103L
+  typedef std::unique_ptr<T> ptr;
+#else
+  typedef std::auto_ptr<T> ptr;
+#endif
+};
+
+template<class T>
+struct wrapped_ptr : public wrapped<typename raw_ptr<T>::ptr>
+{
+  typedef wrapped<typename raw_ptr<T>::ptr> base;
   static T* get(value v)
   {
     return base::get(v).get();
   }
   static value alloc(T* p, size_t tag = 0)
   {
-    return base::alloc(std::auto_ptr<T>(p), tag);
+    return base::alloc(p,tag);
   }
 }; // wrapped_ptr
 
