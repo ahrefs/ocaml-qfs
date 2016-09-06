@@ -39,3 +39,9 @@ configure:
 .PHONY: build doc test all install uninstall reinstall clean distclean configure
 
 # OASIS_STOP
+
+VERSION := $(shell oasis query version)
+
+.PHONY: release
+release:
+	git tag -a -m $(VERSION) $(VERSION)
