@@ -44,8 +44,18 @@ let connect s p =
   init (); (* http://caml.inria.fr/mantis/view.php?id=4166 *)
   connect s p
 external release : client -> unit = "ml_qfs_release"
+
+(** Create a directory.
+    @raise Unix_error if directory already exists or parent directory doesn't exist
+*)
 external mkdir : client -> string -> unit = "ml_qfs_mkdir"
+
+(** Create a directory hierarchy.
+    If parent dirs don't exist - they will be created.
+    Doesn't raise error if directory already exists.
+*)
 external mkdirs : client -> string -> unit = "ml_qfs_mkdirs"
+
 external exists : client -> string -> bool = "ml_qfs_exists"
 external is_file : client -> string -> bool = "ml_qfs_is_file"
 external is_directory : client -> string -> bool = "ml_qfs_is_directory"
