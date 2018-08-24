@@ -95,7 +95,7 @@ static void raise_error(char const* message)
   caml_raise_with_string(*exn, message);
 }
 
-CAMLprim value ml_qfs_connect(value v_host, value v_port)
+value ml_qfs_connect(value v_host, value v_port)
 {
   std::string const& host = get_string(v_host);
   boost::shared_ptr<KfsClient> p;
@@ -110,13 +110,13 @@ CAMLprim value ml_qfs_connect(value v_host, value v_port)
   return ml_client::alloc(p);
 }
 
-CAMLprim value ml_qfs_release(value v)
+value ml_qfs_release(value v)
 {
   ml_client::release(v);
   return Val_unit;
 }
 
-CAMLprim value ml_qfs_mkdirs(value v, value v_dir)
+value ml_qfs_mkdirs(value v, value v_dir)
 {
   int ret = ml_client::get(v)->Mkdirs(String_val(v_dir));
   if (0 != ret)
@@ -124,7 +124,7 @@ CAMLprim value ml_qfs_mkdirs(value v, value v_dir)
   return Val_unit;
 }
 
-CAMLprim value ml_qfs_mkdir(value v, value v_dir)
+value ml_qfs_mkdir(value v, value v_dir)
 {
   int ret = ml_client::get(v)->Mkdir(String_val(v_dir));
   if (0 != ret)
@@ -132,22 +132,22 @@ CAMLprim value ml_qfs_mkdir(value v, value v_dir)
   return Val_unit;
 }
 
-CAMLprim value ml_qfs_exists(value v, value v_path)
+value ml_qfs_exists(value v, value v_path)
 {
   return Val_bool(ml_client::get(v)->Exists(String_val(v_path)));
 }
 
-CAMLprim value ml_qfs_is_file(value v, value v_path)
+value ml_qfs_is_file(value v, value v_path)
 {
   return Val_bool(ml_client::get(v)->IsFile(String_val(v_path)));
 }
 
-CAMLprim value ml_qfs_is_directory(value v, value v_path)
+value ml_qfs_is_directory(value v, value v_path)
 {
   return Val_bool(ml_client::get(v)->IsDirectory(String_val(v_path)));
 }
 
-CAMLprim value ml_qfs_create(value v, value v_path, value v_exclusive, value v_params)
+value ml_qfs_create(value v, value v_path, value v_exclusive, value v_params)
 {
   int ret = ml_client::get(v)->Create((const char*)String_val(v_path), (bool)Bool_val(v_exclusive), (const char*)String_val(v_params));
   if (ret < 0)
@@ -155,7 +155,7 @@ CAMLprim value ml_qfs_create(value v, value v_path, value v_exclusive, value v_p
   return Val_file(ret);
 }
 
-CAMLprim value ml_qfs_open(value v, value v_path, value v_flags, value v_params)
+value ml_qfs_open(value v, value v_path, value v_flags, value v_params)
 {
   int flags = unix_open_flags(v_flags);
   int ret = ml_client::get(v)->Open((const char*)String_val(v_path), flags, (const char*)String_val(v_params));
@@ -164,7 +164,7 @@ CAMLprim value ml_qfs_open(value v, value v_path, value v_flags, value v_params)
   return Val_file(ret);
 }
 
-CAMLprim value ml_qfs_close(value v, value v_file)
+value ml_qfs_close(value v, value v_file)
 {
   int ret = ml_client::get(v)->Close(File_val(v_file));
   if (0 != ret)
@@ -172,7 +172,7 @@ CAMLprim value ml_qfs_close(value v, value v_file)
   return Val_unit;
 }
 
-CAMLprim value ml_qfs_readdir(value v, value v_path)
+value ml_qfs_readdir(value v, value v_path)
 {
   CAMLparam2(v, v_path);
   CAMLlocal1(v_arr);
@@ -196,7 +196,7 @@ CAMLprim value ml_qfs_readdir(value v, value v_path)
   CAMLreturn(v_arr);
 }
 
-CAMLprim value ml_qfs_remove(value v, value v_path)
+value ml_qfs_remove(value v, value v_path)
 {
   int ret = ml_client::get(v)->Remove(String_val(v_path));
   if (0 != ret) // FIXME status code
@@ -204,7 +204,7 @@ CAMLprim value ml_qfs_remove(value v, value v_path)
   return Val_unit;
 }
 
-CAMLprim value ml_qfs_rmdir(value v, value v_path)
+value ml_qfs_rmdir(value v, value v_path)
 {
   int ret = ml_client::get(v)->Rmdir(String_val(v_path));
   if (0 != ret)
@@ -212,7 +212,7 @@ CAMLprim value ml_qfs_rmdir(value v, value v_path)
   return Val_unit;
 }
 
-CAMLprim value ml_qfs_sync(value v, value v_file)
+value ml_qfs_sync(value v, value v_file)
 {
   int ret = ml_client::get(v)->Sync(File_val(v_file));
   if (0 != ret)
@@ -220,7 +220,7 @@ CAMLprim value ml_qfs_sync(value v, value v_file)
   return Val_unit;
 }
 
-CAMLprim value ml_qfs_rename(value v, value v_old, value v_new, value v_overwrite)
+value ml_qfs_rename(value v, value v_old, value v_new, value v_overwrite)
 {
   int ret = ml_client::get(v)->Rename(String_val(v_old), String_val(v_new), Bool_val(v_overwrite));
   if (0 != ret)
@@ -247,7 +247,7 @@ value make_stat(KfsFileAttr const& st)
   CAMLreturn(v_st);
 }
 
-CAMLprim value ml_qfs_stat(value v, value v_path, value v_filesize)
+value ml_qfs_stat(value v, value v_path, value v_filesize)
 {
   KfsFileAttr st;
   int ret = ml_client::get(v)->Stat(String_val(v_path), st, Bool_val(v_filesize));
@@ -256,7 +256,7 @@ CAMLprim value ml_qfs_stat(value v, value v_path, value v_filesize)
   return make_stat(st);
 }
 
-CAMLprim value ml_qfs_fstat(value v, value v_file)
+value ml_qfs_fstat(value v, value v_file)
 {
   KfsFileAttr st;
   int ret = ml_client::get(v)->Stat(File_val(v_file), st);
@@ -265,7 +265,7 @@ CAMLprim value ml_qfs_fstat(value v, value v_file)
   return make_stat(st);
 }
 
-CAMLprim value ml_qfs_readdir_plus(value v, value v_path, value v_filesize)
+value ml_qfs_readdir_plus(value v, value v_path, value v_filesize)
 {
   CAMLparam3(v, v_path, v_filesize);
   CAMLlocal1(v_arr);
@@ -289,7 +289,7 @@ CAMLprim value ml_qfs_readdir_plus(value v, value v_path, value v_filesize)
   CAMLreturn(v_arr);
 }
 
-CAMLprim value ml_qfs_read(value v, value v_file, value v_buf, value v_ofs, value v_bytes)
+value ml_qfs_read(value v, value v_file, value v_buf, value v_ofs, value v_bytes)
 {
   CAMLparam5(v, v_file, v_buf, v_ofs, v_bytes);
   int ret = ml_client::get(v)->Read(File_val(v_file), String_val(v_buf) + Int_val(v_ofs), Int_val(v_bytes));
@@ -298,7 +298,7 @@ CAMLprim value ml_qfs_read(value v, value v_file, value v_buf, value v_ofs, valu
   CAMLreturn(Val_int(ret));
 }
 
-CAMLprim value ml_qfs_pread(value v, value v_file, value v_pos, value v_buf, value v_ofs, value v_bytes)
+value ml_qfs_pread(value v, value v_file, value v_pos, value v_buf, value v_ofs, value v_bytes)
 {
   CAMLparam5(v, v_file, v_pos, v_buf, v_ofs);
   CAMLxparam1(v_bytes);
@@ -308,12 +308,12 @@ CAMLprim value ml_qfs_pread(value v, value v_file, value v_pos, value v_buf, val
   CAMLreturn(Val_int(ret));
 }
 
-CAMLprim value ml_qfs_pread_bytecode(value * argv, int argn)
+value ml_qfs_pread_bytecode(value * argv, int argn)
 {
   return ml_qfs_pread(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
 }
 
-CAMLprim value ml_qfs_write(value v, value v_file, value v_buf, value v_ofs, value v_bytes)
+value ml_qfs_write(value v, value v_file, value v_buf, value v_ofs, value v_bytes)
 {
   CAMLparam5(v, v_file, v_buf, v_ofs, v_bytes);
   int ret = ml_client::get(v)->Write(File_val(v_file), String_val(v_buf) + Int_val(v_ofs), Int_val(v_bytes));
@@ -322,7 +322,7 @@ CAMLprim value ml_qfs_write(value v, value v_file, value v_buf, value v_ofs, val
   CAMLreturn(Val_int(ret));
 }
 
-CAMLprim value ml_qfs_pwrite(value v, value v_file, value v_pos, value v_buf, value v_ofs, value v_bytes)
+value ml_qfs_pwrite(value v, value v_file, value v_pos, value v_buf, value v_ofs, value v_bytes)
 {
   CAMLparam5(v, v_file, v_pos, v_buf, v_ofs);
   CAMLxparam1(v_bytes);
@@ -332,43 +332,43 @@ CAMLprim value ml_qfs_pwrite(value v, value v_file, value v_pos, value v_buf, va
   CAMLreturn(Val_int(ret));
 }
 
-CAMLprim value ml_qfs_pwrite_bytecode(value * argv, int argn)
+value ml_qfs_pwrite_bytecode(value * argv, int argn)
 {
   return ml_qfs_pwrite(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
 }
 
-CAMLprim value ml_qfs_skip_holes(value v, value v_file)
+value ml_qfs_skip_holes(value v, value v_file)
 {
   ml_client::get(v)->SkipHolesInFile(File_val(v_file));
   return Val_unit;
 }
 
-CAMLprim value ml_qfs_get_iobuffer_size(value v, value v_file)
+value ml_qfs_get_iobuffer_size(value v, value v_file)
 {
   return Val_int(ml_client::get(v)->GetIoBufferSize(File_val(v_file)));
 }
 
-CAMLprim value ml_qfs_set_iobuffer_size(value v, value v_file, value v_size)
+value ml_qfs_set_iobuffer_size(value v, value v_file, value v_size)
 {
   return Val_int(ml_client::get(v)->SetIoBufferSize(File_val(v_file),Int_val(v_size)));
 }
 
-CAMLprim value ml_qfs_get_readahead_size(value v, value v_file)
+value ml_qfs_get_readahead_size(value v, value v_file)
 {
   return Val_int(ml_client::get(v)->GetReadAheadSize(File_val(v_file)));
 }
 
-CAMLprim value ml_qfs_set_readahead_size(value v, value v_file, value v_size)
+value ml_qfs_set_readahead_size(value v, value v_file, value v_size)
 {
   return Val_int(ml_client::get(v)->SetReadAheadSize(File_val(v_file),Int_val(v_size)));
 }
 
 #define INT_PARAM(name,set) \
-CAMLprim value ml_qfs_Get##name(value v) \
+value ml_qfs_Get##name(value v) \
 { \
   return Val_int(ml_client::get(v)->Get##name()); \
 } \
-CAMLprim value ml_qfs_Set##name(value v, value v_set) \
+value ml_qfs_Set##name(value v, value v_set) \
 { \
   set(ml_client::get(v)->Set##name(Int_val(v_set))); \
   return Val_unit; \
@@ -395,7 +395,7 @@ value make_location(ServerLocation const& loc)
   CAMLreturn(v);
 }
 
-CAMLprim value ml_qfs_get_metaserver_location(value v)
+value ml_qfs_get_metaserver_location(value v)
 {
   CAMLparam1(v);
   CAMLlocal1(v_r);
@@ -418,7 +418,7 @@ value make_block_info(KfsClient::BlockInfo const& b)
   CAMLreturn(v);
 }
 
-CAMLprim value ml_qfs_EnumerateBlocks(value v, value v_path)
+value ml_qfs_EnumerateBlocks(value v, value v_path)
 {
   CAMLparam2(v, v_path);
   CAMLlocal1(v_res);
@@ -444,7 +444,7 @@ CAMLprim value ml_qfs_EnumerateBlocks(value v, value v_path)
   CAMLreturn(v_res);
 }
 
-CAMLprim value ml_qfs_GetFileOrChunkInfo(value v, value v_file, value v_chunk)
+value ml_qfs_GetFileOrChunkInfo(value v, value v_file, value v_chunk)
 {
   CAMLparam3(v,v_file,v_chunk);
   CAMLlocal2(v_res,v_servers);
