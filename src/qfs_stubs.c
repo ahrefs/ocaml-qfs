@@ -134,7 +134,8 @@ value ml_qfs_release(value v)
 value ml_qfs_mkdirs(value v, value v_dir)
 {
   CAMLparam2(v,v_dir);
-  int ret = with_qfs(v, &KfsClient::Mkdirs, C_STR(v_dir), 0777); /* because default arguments are not handled by "perfect" forwarding */
+  int ret = with_qfs(v, static_cast<int (KfsClient::*)(const char*, kfsMode_t)>(&KfsClient::Mkdirs),
+                     C_STR(v_dir), 0777); /* because default arguments are not handled by "perfect" forwarding */
   if (0 != ret)
     unix_error(-ret,"Qfs.mkdirs",v_dir);
   CAMLreturn(Val_unit);
@@ -143,7 +144,8 @@ value ml_qfs_mkdirs(value v, value v_dir)
 value ml_qfs_mkdir(value v, value v_dir)
 {
   CAMLparam2(v, v_dir);
-  int ret = with_qfs(v, &KfsClient::Mkdir, C_STR(v_dir), 0777);
+  int ret = with_qfs(v, static_cast<int (KfsClient::*)(const char*, kfsMode_t)>(&KfsClient::Mkdir),
+                     C_STR(v_dir), 0777);
   if (0 != ret)
     unix_error(-ret,"Qfs.mkdir",v_dir);
   return Val_unit;
@@ -238,7 +240,8 @@ value ml_qfs_sync(value v, value v_file)
 value ml_qfs_rename(value v, value v_old, value v_new, value v_overwrite)
 {
   CAMLparam4(v,v_old,v_new,v_overwrite);
-  int ret = with_qfs(v, &KfsClient::Rename, C_STR(v_old), C_STR(v_new), Bool_val(v_overwrite));
+  int ret = with_qfs(v, static_cast<int (KfsClient::*)(const char*, const char*, bool)>(&KfsClient::Rename),
+                     C_STR(v_old), C_STR(v_new), Bool_val(v_overwrite));
   if (0 != ret)
     unix_error(-ret,"Qfs.rename",v_old); // -1
   CAMLreturn(Val_unit);
@@ -434,7 +437,8 @@ value ml_qfs_EnumerateBlocks(value v, value v_path)
   CAMLparam2(v, v_path);
   CAMLlocal1(v_res);
   KfsClient::BlockInfos blocks;
-  int ret = with_qfs(v, &KfsClient::EnumerateBlocks, C_STR(v_path), blocks, true);
+  int ret = with_qfs(v, static_cast<int (KfsClient::*)(const char*, KfsClient::BlockInfos&, bool)>(&KfsClient::EnumerateBlocks),
+                     C_STR(v_path), blocks, true);
 
   if (0 != ret)
     unix_error(-ret,"Qfs.enumerate_blocks",v_path);
