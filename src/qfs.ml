@@ -167,12 +167,17 @@ type system_info = {
   clients : int;
   servers : int;
   chunks : int;
+  requests : int;
   total_drives : int;
   writable_drives : int;
   max_clients : int;
   max_servers : int;
   buffers_total : int;
   pending_replication : int;
+  replication_backlog : int;
+  replications : int;
+  replications_check : int;
+  fattr_nodes : int;
 }
 
 type server =
@@ -224,12 +229,17 @@ let parse_system_info v =
     clients = int "clients";
     servers = int "chunk srvs";
     chunks = int "chunks";
+    requests = int "requests";
     total_drives = int "total drives";
     writable_drives = int "writable drives";
     max_clients = int "max clients";
     max_servers = int "max chunk srvs";
     buffers_total = int "buffers total";
     pending_replication = int "pending replication";
+    replication_backlog = int "replication backlog";
+    replications = int "replications";
+    replications_check = int "replications check";
+    fattr_nodes = int "fattr nodes";
   }
 
 let ping client =
