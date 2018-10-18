@@ -5,12 +5,15 @@ Building
 --------
 
 The C library lives at https://github.com/quantcast/qfs
-After building the C library make the includes and libraries visible to the system,
-as follows:
+After building and installing the C library make sure includes and libraries are visible to the C compiler.
+
+One way to do it :
 
   ln -s $QFS_DIR/build/release/include/kfs /usr/include/kfs
   cp $QFS_DIR/build/release/lib/*.so /usr/local/lib
   ldconfig
+
+Alternatively, configure `C_INCLUDE_PATH` and `LIBRARY_PATH` accordingly.
 
 License
 -------
