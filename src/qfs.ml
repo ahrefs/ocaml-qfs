@@ -270,6 +270,7 @@ let ping client =
             | "servers" -> servers := parse_servers v
             | "cseq"
             | "status" -> () (* ignore *)
+            | "vr status"
             | "retiring servers"
             | "evacuating servers"
             | "down servers"
