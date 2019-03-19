@@ -19,12 +19,39 @@ extern "C" {
 #include <memory.h>
 #include <fcntl.h>
 
+// from extunix
+#ifndef O_NONBLOCK
+#ifdef __MINGW32__
+#define O_NONBLOCK 0 /* no O_NONBLOCK on mingw */
+#else
+#define O_NONBLOCK O_NDELAY
+#endif
+#endif
+#ifndef O_DSYNC
+#define O_DSYNC 0
+#endif
+#ifndef O_SYNC
+#define O_SYNC 0
+#endif
+#ifndef O_RSYNC
+#define O_RSYNC O_SYNC
+#endif
+#ifndef O_CLOEXEC
+#define O_CLOEXEC 0
+#endif
+#ifndef O_KEEPEXEC
+#define O_KEEPEXEC 0
+#endif
+
 } // extern "C"
 
 /* sync with Unix.open_flag */
 static int open_flag_table[] = {
   O_RDONLY, O_WRONLY, O_RDWR, O_NONBLOCK, O_APPEND, O_CREAT, O_TRUNC, O_EXCL,
-  O_NOCTTY, O_DSYNC, O_SYNC, O_RSYNC, 0 /* O_SHARE_DELETE */
+  O_NOCTTY, O_DSYNC, O_SYNC, O_RSYNC,
+  0, /* O_SHARE_DELETE */
+  O_CLOEXEC,
+  O_KEEPEXEC
 };
 
 static int unix_open_flags(value v_flags)
