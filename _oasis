@@ -1,6 +1,6 @@
 OASISFormat: 0.4
 Name:        qfs
-Version:     0.8
+Version:     0.9
 License:     LGPL-2.1 with OCaml linking exception
 Authors:     Ahrefs Pte Ltd <github@ahrefs.com>
 Copyrights:  (C) 2013 Ahrefs Pte Ltd <github@ahrefs.com>
