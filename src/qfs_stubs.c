@@ -123,6 +123,16 @@ decltype(auto) with_qfs(value v_client, F f, Args&&... args)
   return (p.get()->*f)(std::forward<Args>(args)...);
 }
 
+template<int (KfsClient::*mf)(char const*)>
+value with_qfs_path(const char* name, value v_client, value v_path)
+{
+  CAMLparam2(v_client,v_path);
+  int ret = with_qfs(v_client, mf, C_STR(v_path));
+  if (0 != ret)
+    unix_error(-ret,name,v_path);
+  CAMLreturn(Val_unit);
+}
+
 static void raise_error(char const* message)
 {
   static value* exn = NULL;
@@ -238,23 +248,10 @@ value ml_qfs_readdir(value v, value v_path)
   CAMLreturn(v_arr);
 }
 
-value ml_qfs_remove(value v, value v_path)
-{
-  CAMLparam2(v,v_path);
-  int ret = with_qfs(v, &KfsClient::Remove, C_STR(v_path));
-  if (0 != ret) // FIXME status code
-    unix_error(-ret,"Qfs.remove",v_path);
-  CAMLreturn(Val_unit);
-}
-
-value ml_qfs_rmdir(value v, value v_path)
-{
-  CAMLparam2(v,v_path);
-  int ret = with_qfs(v, &KfsClient::Rmdir, C_STR(v_path));
-  if (0 != ret)
-    unix_error(-ret,"Qfs.rmdir",v_path);
-  CAMLreturn(Val_unit);
-}
+value ml_qfs_remove(value v, value v_path) { return with_qfs_path<&KfsClient::Remove>("Qfs.remove", v, v_path); }
+value ml_qfs_rmdir(value v, value v_path) { return with_qfs_path<&KfsClient::Rmdir>("Qfs.rmdir", v, v_path); }
+value ml_qfs_rmdirs(value v, value v_path) { return with_qfs_path<&KfsClient::Rmdirs>("Qfs.rmdirs", v, v_path); }
+value ml_qfs_rmdirs_fast(value v, value v_path) { return with_qfs_path<&KfsClient::RmdirsFast>("Qfs.rmdirs_fast", v, v_path); }
 
 value ml_qfs_sync(value v, value v_file)
 {

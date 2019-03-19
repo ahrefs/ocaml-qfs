@@ -64,8 +64,18 @@ external openfile : client -> string -> Unix.open_flag list -> params:string -> 
 external close : client -> file -> unit = "ml_qfs_close"
 external readdir : client -> string -> string array = "ml_qfs_readdir"
 external readdir_plus : client -> string -> bool -> stat array = "ml_qfs_readdir_plus"
+
+(** remove file *)
 external remove : client -> string -> unit = "ml_qfs_remove"
+
+(** remove directory *)
 external rmdir : client -> string -> unit = "ml_qfs_rmdir"
+
+(** remove directory hierarchy *)
+external rmdirs : client -> string -> unit = "ml_qfs_rmdirs"
+
+external rmdirs_fast : client -> string -> unit = "ml_qfs_rmdirs_fast"
+
 external sync : client -> file -> unit = "ml_qfs_sync"
 external rename : client -> string -> string -> bool -> unit = "ml_qfs_rename"
 external stat : client -> string -> bool -> stat = "ml_qfs_stat"
