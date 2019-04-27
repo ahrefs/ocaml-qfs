@@ -279,13 +279,13 @@ value make_stat(KfsFileAttr const& st)
   v_st = caml_alloc_tuple(9);
   Store_field(v_st, 0, caml_copy_int64(st.fileId));
   Store_field(v_st, 1, value_of_string(st.filename));
-  Store_field(v_st, 2, Val_int(st.fileSize));
+  Store_field(v_st, 2, Val_long(st.fileSize));
   Store_field(v_st, 3, caml_copy_double((double) st.mtime.tv_sec + (double) st.mtime.tv_usec / 1e6));
   Store_field(v_st, 4, caml_copy_double((double) st.ctime.tv_sec + (double) st.ctime.tv_usec / 1e6));
   Store_field(v_st, 5, caml_copy_double((double) st.crtime.tv_sec + (double) st.crtime.tv_usec / 1e6));
   Store_field(v_st, 6, Val_bool(st.isDirectory));
-  Store_field(v_st, 7, Val_int(st.subCount1));
-  Store_field(v_st, 8, Val_int(st.subCount2));
+  Store_field(v_st, 7, Val_long(st.subCount1));
+  Store_field(v_st, 8, Val_long(st.subCount2));
 
   CAMLreturn(v_st);
 }
@@ -327,23 +327,23 @@ value ml_qfs_readdir_plus(value v, value v_path, value v_filesize)
   CAMLreturn(v_arr);
 }
 
-value ml_qfs_read(value v, value v_file, value v_buf, value v_ofs, value v_bytes)
+value ml_qfs_read(value v, value v_file, value v_buf, value v_ofs, value v_len)
 {
-  CAMLparam5(v, v_file, v_buf, v_ofs, v_bytes);
-  int ret = ml_client::get(v)->Read(File_val(v_file), String_val(v_buf) + Int_val(v_ofs), Int_val(v_bytes));
+  CAMLparam5(v, v_file, v_buf, v_ofs, v_len);
+  ssize_t ret = ml_client::get(v)->Read(File_val(v_file), String_val(v_buf) + Long_val(v_ofs), Long_val(v_len));
   if (ret < 0)
     unix_error(-ret,"Qfs.read",Nothing);
-  CAMLreturn(Val_int(ret));
+  CAMLreturn(Val_long(ret));
 }
 
-value ml_qfs_pread(value v, value v_file, value v_pos, value v_buf, value v_ofs, value v_bytes)
+value ml_qfs_pread(value v, value v_file, value v_pos, value v_buf, value v_ofs, value v_len)
 {
   CAMLparam5(v, v_file, v_pos, v_buf, v_ofs);
-  CAMLxparam1(v_bytes);
-  int ret = ml_client::get(v)->PRead(File_val(v_file), Int_val(v_pos), String_val(v_buf) + Int_val(v_ofs), Int_val(v_bytes));
+  CAMLxparam1(v_len);
+  ssize_t ret = ml_client::get(v)->PRead(File_val(v_file), Long_val(v_pos), String_val(v_buf) + Long_val(v_ofs), Long_val(v_len));
   if (ret < 0)
     unix_error(-ret,"Qfs.pread",Nothing);
-  CAMLreturn(Val_int(ret));
+  CAMLreturn(Val_long(ret));
 }
 
 value ml_qfs_pread_bytecode(value * argv, int argn)
@@ -351,23 +351,23 @@ value ml_qfs_pread_bytecode(value * argv, int argn)
   return ml_qfs_pread(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
 }
 
-value ml_qfs_write(value v, value v_file, value v_buf, value v_ofs, value v_bytes)
+value ml_qfs_write(value v, value v_file, value v_buf, value v_ofs, value v_len)
 {
-  CAMLparam5(v, v_file, v_buf, v_ofs, v_bytes);
-  int ret = ml_client::get(v)->Write(File_val(v_file), String_val(v_buf) + Int_val(v_ofs), Int_val(v_bytes));
+  CAMLparam5(v, v_file, v_buf, v_ofs, v_len);
+  ssize_t ret = ml_client::get(v)->Write(File_val(v_file), String_val(v_buf) + Long_val(v_ofs), Long_val(v_len));
   if (ret < 0)
     unix_error(-ret,"Qfs.write",Nothing);
-  CAMLreturn(Val_int(ret));
+  CAMLreturn(Val_long(ret));
 }
 
-value ml_qfs_pwrite(value v, value v_file, value v_pos, value v_buf, value v_ofs, value v_bytes)
+value ml_qfs_pwrite(value v, value v_file, value v_pos, value v_buf, value v_ofs, value v_len)
 {
   CAMLparam5(v, v_file, v_pos, v_buf, v_ofs);
-  CAMLxparam1(v_bytes);
-  int ret = ml_client::get(v)->PWrite(File_val(v_file), Int_val(v_pos), String_val(v_buf) + Int_val(v_ofs), Int_val(v_bytes));
+  CAMLxparam1(v_len);
+  ssize_t ret = ml_client::get(v)->PWrite(File_val(v_file), Long_val(v_pos), String_val(v_buf) + Long_val(v_ofs), Long_val(v_len));
   if (ret < 0)
     unix_error(-ret,"Qfs.pwrite",Nothing);
-  CAMLreturn(Val_int(ret));
+  CAMLreturn(Val_long(ret));
 }
 
 value ml_qfs_pwrite_bytecode(value * argv, int argn)
@@ -383,37 +383,37 @@ value ml_qfs_skip_holes(value v, value v_file)
 
 value ml_qfs_get_iobuffer_size(value v, value v_file)
 {
-  return Val_int(with_qfs(v, &KfsClient::GetIoBufferSize, File_val(v_file)));
+  return Val_long(with_qfs(v, &KfsClient::GetIoBufferSize, File_val(v_file)));
 }
 
 value ml_qfs_set_iobuffer_size(value v, value v_file, value v_size)
 {
-  return Val_int(with_qfs(v, &KfsClient::SetIoBufferSize, File_val(v_file), Int_val(v_size)));
+  return Val_long(with_qfs(v, &KfsClient::SetIoBufferSize, File_val(v_file), Long_val(v_size)));
 }
 
 value ml_qfs_get_readahead_size(value v, value v_file)
 {
-  return Val_int(with_qfs(v, &KfsClient::GetReadAheadSize, File_val(v_file)));
+  return Val_long(with_qfs(v, &KfsClient::GetReadAheadSize, File_val(v_file)));
 }
 
 value ml_qfs_set_readahead_size(value v, value v_file, value v_size)
 {
-  return Val_int(with_qfs(v, &KfsClient::SetReadAheadSize, File_val(v_file), Int_val(v_size)));
+  return Val_long(with_qfs(v, &KfsClient::SetReadAheadSize, File_val(v_file), Long_val(v_size)));
 }
 
 #define INT_PARAM(name,set) \
 value ml_qfs_Get##name(value v) \
 { \
-  return Val_int(with_qfs(v, &KfsClient::Get##name)); \
+  return Val_long(with_qfs(v, &KfsClient::Get##name)); \
 } \
 value ml_qfs_Set##name(value v, value v_set) \
 { \
-  set(with_qfs(v, &KfsClient::Set##name, Int_val(v_set))); \
+  set(with_qfs(v, &KfsClient::Set##name, Long_val(v_set))); \
   return Val_unit; \
 }
 
 #define RETURN_VOID
-#define RETURN_INT return Val_int
+#define RETURN_INT return Val_long
 
 INT_PARAM(DefaultIoBufferSize,RETURN_INT)
 INT_PARAM(DefaultReadAheadSize,RETURN_INT)
@@ -449,9 +449,9 @@ value make_block_info(KfsClient::BlockInfo const& b)
   v = caml_alloc_tuple(5);
   Store_field(v, 0, caml_copy_int64(b.offset));
   Store_field(v, 1, caml_copy_int64(b.id));
-  Store_field(v, 2, Val_int(b.version));
+  Store_field(v, 2, Val_long(b.version));
   Store_field(v, 3, make_location(b.server));
-  Store_field(v, 4, Val_int(b.size));
+  Store_field(v, 4, Val_long(b.size));
 
   CAMLreturn(v);
 }
@@ -498,7 +498,7 @@ value ml_qfs_GetFileOrChunkInfo(value v, value v_file, value v_chunk)
   v_res = caml_alloc_tuple(4);
   Store_field(v_res,0,make_stat(attr));
   Store_field(v_res,1,caml_copy_int64(offset));
-  Store_field(v_res,2,Val_int(chunkVersion));
+  Store_field(v_res,2,Val_long(chunkVersion));
   Store_field(v_res,3,v_servers);
 
   CAMLreturn(v_res);
