@@ -401,6 +401,21 @@ value ml_qfs_set_readahead_size(value v, value v_file, value v_size)
   return Val_long(with_qfs(v, &KfsClient::SetReadAheadSize, File_val(v_file), Long_val(v_size)));
 }
 
+value ml_qfs_get_replication_factor(value v, value v_path)
+{
+  return Val_long(with_qfs(v, &KfsClient::GetReplicationFactor, C_STR(v_path)));
+}
+
+value ml_qfs_set_replication_factor(value v, value v_path, value v_size)
+{
+  return Val_long(with_qfs(v, &KfsClient::SetReplicationFactor, C_STR(v_path), Int_val(v_size)));
+}
+
+value ml_qfs_set_replication_factor_r(value v, value v_path, value v_size)
+{
+  return Val_long(with_qfs(v, static_cast<int (KfsClient::*)(const char*,int16_t)>(&KfsClient::SetReplicationFactorR), C_STR(v_path), Int_val(v_size)));
+}
+
 #define INT_PARAM(name,set) \
 value ml_qfs_Get##name(value v) \
 { \

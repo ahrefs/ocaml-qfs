@@ -94,6 +94,10 @@ external set_default_readahead_size : client -> int -> int = "ml_qfs_SetDefaultR
 external get_readahead_size : client -> file -> int = "ml_qfs_get_readahead_size"
 external set_readahead_size : client -> file -> int -> int = "ml_qfs_set_readahead_size"
 
+external get_replication_factor : client -> string -> int = "ml_qfs_get_replication_factor"
+external set_replication_factor : client -> string -> int -> int = "ml_qfs_set_replication_factor"
+external set_replication_factor_r : client -> string -> int -> int = "ml_qfs_set_replication_factor_r"
+
 (** in seconds *)
 external get_default_io_timeout : client -> int = "ml_qfs_GetDefaultIOTimeout"
 external set_default_io_timeout : client -> int -> unit = "ml_qfs_SetDefaultIOTimeout"
