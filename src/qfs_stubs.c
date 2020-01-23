@@ -135,7 +135,7 @@ value with_qfs_path(const char* name, value v_client, value v_path)
 
 static void raise_error(char const* message)
 {
-  static value* exn = NULL;
+  static const value* exn = NULL;
   if (NULL == exn)
   {
     exn = caml_named_value("Qfs.Error");
