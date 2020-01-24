@@ -1,6 +1,6 @@
 # OASIS_START
-# DO NOT EDIT (digest: 24f211552de544a12ac7444c928ba793)
-version = "0.10"
+# DO NOT EDIT (digest: e8e5c1d3039cb0b37f8ea3bd8ebdf424)
+version = "0.11"
 description = "bindings to libqfs - client library to access QFS"
 requires = "unix bytes threads lwt.unix lwt_ppx extlib"
 archive(byte) = "qfs.cma"
