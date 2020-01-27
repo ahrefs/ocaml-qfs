@@ -97,7 +97,7 @@ static value value_of_string(std::string const& s)
   CAMLparam0();
   CAMLlocal1(v);
   v = caml_alloc_string(s.size());
-  memcpy(String_val(v), s.c_str(), s.size());
+  memcpy(Bytes_val(v), s.c_str(), s.size());
   CAMLreturn(v);
 }
 
@@ -330,7 +330,7 @@ value ml_qfs_readdir_plus(value v, value v_path, value v_filesize)
 value ml_qfs_read(value v, value v_file, value v_buf, value v_ofs, value v_len)
 {
   CAMLparam5(v, v_file, v_buf, v_ofs, v_len);
-  ssize_t ret = ml_client::get(v)->Read(File_val(v_file), String_val(v_buf) + Long_val(v_ofs), Long_val(v_len));
+  ssize_t ret = ml_client::get(v)->Read(File_val(v_file), (char*)Bytes_val(v_buf) + Long_val(v_ofs), Long_val(v_len));
   if (ret < 0)
     unix_error(-ret,"Qfs.read",Nothing);
   CAMLreturn(Val_long(ret));
@@ -340,7 +340,7 @@ value ml_qfs_pread(value v, value v_file, value v_pos, value v_buf, value v_ofs,
 {
   CAMLparam5(v, v_file, v_pos, v_buf, v_ofs);
   CAMLxparam1(v_len);
-  ssize_t ret = ml_client::get(v)->PRead(File_val(v_file), Long_val(v_pos), String_val(v_buf) + Long_val(v_ofs), Long_val(v_len));
+  ssize_t ret = ml_client::get(v)->PRead(File_val(v_file), Long_val(v_pos), (char*)Bytes_val(v_buf) + Long_val(v_ofs), Long_val(v_len));
   if (ret < 0)
     unix_error(-ret,"Qfs.pread",Nothing);
   CAMLreturn(Val_long(ret));
