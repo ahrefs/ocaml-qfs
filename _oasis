@@ -8,7 +8,7 @@ Homepage:    https://github.com/ahrefs/ocaml-qfs
 #BugReports:  https://github.com/ahrefs/ocaml-qfs/issues
 BuildTools:  ocamlbuild
 Plugins:     DevFiles (0.4), META (0.4)
-OCamlVersion: >= 4.02.0
+OCamlVersion: >= 4.06.0
 
 Synopsis:    bindings to libqfs - client library to access QFS
 Description:
