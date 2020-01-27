@@ -41,7 +41,9 @@ configure:
 # OASIS_STOP
 
 VERSION := $(shell oasis query version)
+NAME=ocaml-qfs-$(VERSION)
 
 .PHONY: release
 release:
 	git tag -a -m $(VERSION) $(VERSION)
+	git archive --prefix=$(NAME)/ $(VERSION) | gzip > $(NAME).tar.gz
