@@ -115,6 +115,10 @@ static std::string get_string(value v)
 
 #define C_STR(v) (const char*)(get_string(v).c_str())
 
+#if __cplusplus < 201402L
+#error C++14 required
+#endif
+
 template<typename F, typename... Args>
 decltype(auto) with_qfs(value v_client, F f, Args&&... args)
 {
