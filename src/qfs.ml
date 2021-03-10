@@ -256,59 +256,63 @@ let parse_system_info v =
     fattr_nodes = int "fattr nodes";
   }
 
+let parse_ping cin =
+  let build_version = ref "" in
+  let source_version = ref "" in
+  let system = ref None in
+  let worm = ref false in
+  let servers = ref [] in
+  let%lwt () =
+    Lwt_io.read_lines cin |> Lwt_stream.junk_while_s begin function
+    | "" -> Lwt.return false
+    | "OK" -> Lwt.return true
+    | s ->
+      Lwt.wrap @@ fun () ->
+        try
+          match String.split s ":" with
+          | exception _ -> error "no delimiter"
+          | (k,v) ->
+          let v = String.strip v in
+          let () = match String.(lowercase @@ strip k) with
+          | "build-version" -> build_version := v
+          | "source-version" -> source_version := v
+          | "worm" -> worm := v <> "0"
+          | "system info" -> system := Some (parse_system_info v)
+          | "servers" -> servers := parse_servers v
+          | "cseq"
+          | "status"
+          | "vr status"
+          | "retiring servers"
+          | "evacuating servers"
+          | "down servers"
+          | "rebalance status"
+          | "config"
+          | "watchdog"
+          | "rusage self"
+          | "rusage children"
+          | "storage tiers info"
+          | "storage tiers info names" -> () (* skip *)
+          | _ -> prerr_endline @@ sprintf "PING response: unrecognized key %S, skipping" k
+          in
+          true
+        with
+        | Error err -> error "%s in line %S" err s
+        | exn -> error "%s in line %S" (Printexc.to_string exn) s
+    end
+  in
+  let get name = function None -> error_lwt "PING: missing %s" name | Some x -> Lwt.return x in
+  let%lwt system = get "system" !system in
+  Lwt.return {
+    build_version = !build_version;
+    source_version = !source_version;
+    worm = !worm;
+    system;
+    servers = !servers;
+  }
+
 let ping client =
   let (host,port) = get_metaserver_location client in
   Lwt_io.with_connection Unix.(ADDR_INET (inet_addr_of_string host, port)) begin fun (cin,cout) ->
     let%lwt () = Lwt_io.write cout "PING\r\nVersion: KFS/1.0\r\nCseq: 1\r\nClient-Protocol-Version: 114\r\n\r\n" in
-    let build_version = ref "" in
-    let source_version = ref "" in
-    let system = ref None in
-    let worm = ref false in
-    let servers = ref [] in
-    let%lwt () =
-      Lwt_io.read_lines cin |> Lwt_stream.junk_while_s begin function
-      | "" -> Lwt.return false
-      | "OK" -> Lwt.return true
-      | s ->
-        Lwt.wrap @@ fun () ->
-          try
-            match String.split s ":" with
-            | exception _ -> error "no delimiter"
-            | (k,v) ->
-            let v = String.strip v in
-            let () = match String.(lowercase @@ strip k) with
-            | "build-version" -> build_version := v
-            | "source-version" -> source_version := v
-            | "worm" -> worm := v <> "0"
-            | "system info" -> system := Some (parse_system_info v)
-            | "servers" -> servers := parse_servers v
-            | "cseq"
-            | "status" -> () (* ignore *)
-            | "vr status"
-            | "retiring servers"
-            | "evacuating servers"
-            | "down servers"
-            | "rebalance status"
-            | "config"
-            | "rusage self"
-            | "rusage children"
-            | "storage tiers info"
-            | "storage tiers info names" -> () (* skip *)
-            | _ -> prerr_endline @@ sprintf "PING response: unrecognized key %S, skipping" k
-            in
-            true
-          with
-          | Error err -> error "%s in line %S" err s
-          | exn -> error "%s in line %S" (Printexc.to_string exn) s
-      end
-    in
-    let get name = function None -> error_lwt "PING: missing %s" name | Some x -> Lwt.return x in
-    let%lwt system = get "system" !system in
-    Lwt.return {
-      build_version = !build_version;
-      source_version = !source_version;
-      worm = !worm;
-      system;
-      servers = !servers;
-    }
+    parse_ping cin
   end

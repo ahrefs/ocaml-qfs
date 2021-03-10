@@ -3,7 +3,7 @@ open Printf
 
 let error fmt = ksprintf (fun s -> prerr_endline s; exit 1) fmt
 
-let main () =
+let example () =
   let host = ref "" in
   let port = ref (-1) in
   let usage = sprintf "Usage: %s -s <meta server name> -p <port>" Sys.argv.(0) in
@@ -141,9 +141,20 @@ let main () =
   Qfs.rmdir fs dir;
   print_endline "Tests passed!"
 
+let parse_ping file =
+  let%lwt cin = Lwt_io.open_file ~mode:Lwt_io.input file in
+  let _ = Qfs.parse_ping cin in
+  Lwt.return_unit
+
+let parse_ping () =
+  match Sys.argv with
+  | [| _; file |] -> Lwt_main.run @@ parse_ping file
+  | _ -> failwith "show me the ping"
+
 let () =
   try
-    main ()
+(*     parse_ping () *)
+    example ()
   with
     exn ->
       prerr_endline (Printexc.to_string exn);
