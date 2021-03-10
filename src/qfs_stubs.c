@@ -1,11 +1,12 @@
 
 #include "cxx_wrapped.h"
-#include <boost/smart_ptr.hpp>
+#include <memory>
+#include <cassert>
 #include <kfs/KfsClient.h>
 
 using namespace KFS;
 
-typedef wrapped<boost::shared_ptr<KfsClient> > ml_client;
+typedef wrapped<std::shared_ptr<KfsClient> > ml_client;
 
 template<>
 char const* ml_name<ml_client::type>() { return "KfsClient"; }
@@ -154,7 +155,7 @@ extern "C"
 value ml_qfs_connect(value v_host, value v_port)
 {
   std::string const& host = get_string(v_host);
-  boost::shared_ptr<KfsClient> p;
+  std::shared_ptr<KfsClient> p;
 
   do {
     caml_blocking_section lock;
