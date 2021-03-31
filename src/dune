@@ -1,0 +1,15 @@
+(library
+  (name qfs)
+  (public_name qfs)
+  (libraries unix bytes lwt.unix extlib)
+  (preprocess (pps lwt_ppx))
+  (foreign_stubs
+    (language c)
+    (flags -g -x c++ -Wall -Wno-write-strings)
+    (names qfs_stubs)
+  )
+;(* ocamlmklib doesn't understand -pthread anyway and ocamlfind will complain,
+;  so just pass it directly to be stored in cma *)
+;flag [ "link"; "oasis_library_qfs_cclib"; ] & S[A"-cclib";A"-pthread"];;
+  (c_library_flags -lstdc++ -lqfs_client -lqfs_io -lqfs_qcdio -lqfs_qcrs -lqfs_common)
+)

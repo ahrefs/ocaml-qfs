@@ -1,0 +1,35 @@
+x-ci-accept-failures: ["debian-unstable"]
+opam-version: "2.0"
+name: "qfs"
+version: "0.12"
+synopsis: "Bindings to libqfs - client library to access QFS"
+description: "QFS is a distributed fault-tolerant filesystem by Quantcast"
+maintainer: "Ahrefs Pte Ltd <github@ahrefs.com>"
+authors: "Ahrefs Pte Ltd <github@ahrefs.com>"
+license: "LGPL-2.1-only with OCaml-LGPL-linking-exception"
+tags: ["org:ahrefs" "clib:stdc" "clib:qfs"]
+homepage: "https://github.com/ahrefs/ocaml-qfs"
+bug-reports: "https://github.com/ahrefs/ocaml-qfs/issues"
+depends: [
+  "ocaml" {>= "4.06.0"}
+  "dune" {>= "2.1.0"}
+  "base-bytes"
+  "base-unix"
+  "extlib" | "extlib-compat"
+  "lwt" {>= "3.4.6"}
+  "lwt_ppx"
+  "conf-boost"
+  "odoc" {with-doc}
+]
+build: [
+  ["dune" "subst"] {pinned}
+  ["dune" "build" "-p" name "-j" jobs "@install" "@doc" {with-doc}]
+]
+post-messages:
+  """
+This package requires QFS development files installed, consult https://quantcast.github.io/qfs/
+  and https://github.com/quantcast/qfs/wiki/Developer-Documentation on how to build manually.
+
+  Tentative instructions for Debian : https://gist.githubusercontent.com/ygrek/7bb217d6ab7b25a765b7/raw"""
+    {failure}
+dev-repo: "git://github.com/ahrefs/ocaml-qfs.git"

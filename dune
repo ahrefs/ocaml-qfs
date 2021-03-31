@@ -1,0 +1,5 @@
+(executable
+  (name example)
+  (libraries qfs lwt.unix)
+  (preprocess (pps lwt_ppx))
+)

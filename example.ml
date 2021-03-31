@@ -31,7 +31,7 @@ let example () =
     fd is our file-handle to the file we are creating; this
     file handle should be used in subsequent I/O calls on the file.
   *)
-  let fd = Qfs.create fs file1 false "" in
+  let fd = Qfs.create fs file1 ~excl:false ~params:"" in
 
   (* Get the directory listings *)
   let entries = Qfs.readdir fs dir in
