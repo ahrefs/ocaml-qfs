@@ -179,7 +179,10 @@ type system_info = {
   uptime : int;
   buffers : int;
   clients : int;
+  delayed_recovery : int;
+  in_recovery : int;
   servers : int;
+  sockets : int;
   chunks : int;
   requests : int;
   total_drives : int;
@@ -187,8 +190,10 @@ type system_info = {
   max_clients : int;
   max_servers : int;
   buffers_total : int;
+  pending_recovery : int;
   pending_replication : int;
   replication_backlog : int;
+  repl_check_timeouts : int;
   replications : int;
   replications_check : int;
   fattr_nodes : int;
@@ -198,6 +203,55 @@ type server =
 {
   host : string;
   port : int;
+  free : int;
+  used : int;
+  total : int;
+  rack : int;
+  nblocks : int;
+  lastheard : int;
+  ncorrupt : int;
+  nchunksToMove : int;
+  numDrives : int;
+  numWritableDrives : int;
+  overloaded : int;
+  numReplications : int;
+  numReadReplications : int;
+  good : int;
+  nevacuate : int;
+  bytesevacuate : int;
+  nlost : int;
+  nwrites : int;
+  load : int;
+  replay : int;
+  connected : int;
+  stopped : int;
+  chunks : int;
+  tiers : string;
+  lostChunkDirs : string option;
+  util_pct : float;
+}
+
+type down_server =
+{
+  ip : string;
+  port : int;
+  reason : string;
+  since : string;
+}
+
+type evacuating_server =
+{
+  ip : string;
+  port : int;
+  eta : float;
+  bytes_left : int;
+  chunks_done : int;
+  bytes_done : int;
+  chunks_inflight : int;
+  chunks_pending : int;
+  chunks_per_second : float;
+  bytes_per_second : float;
+  chunks_left : int;
 }
 
 type info =
@@ -207,6 +261,8 @@ type info =
   worm : bool;
   system : system_info;
   servers : server list;
+  down_servers : down_server list;
+  evacuating_servers : evacuating_server list;
 }
 
 open ExtLib
@@ -224,10 +280,72 @@ let parse_servers v =
   String.nsplit v "\t" |> List.map begin fun s ->
     let h = parse_kv ~delim:"," s in
     let int k = try int_of_string @@ Hashtbl.find h k with _ -> error "bad server value %S" k in
+    let float k = try float_of_string @@ Hashtbl.find h k with _ -> error "bad server value %S" k in
     let str k = try Hashtbl.find h k with _ -> error "bad server value %S" k in
+    let maybe_str k = try Some(Hashtbl.find h k) with _ -> None in
     {
       host = str "s";
       port = int "p";
+      free = int "free";
+      used = int "used";
+      total = int "total";
+      rack = int "rack";
+      nblocks = int "nblocks";
+      lastheard = int "lastheard";
+      ncorrupt = int "ncorrupt";
+      nchunksToMove = int "nchunkstomove";
+      numDrives = int "numdrives";
+      numWritableDrives = int "numwritabledrives";
+      overloaded = int "overloaded";
+      numReplications = int "numreplications";
+      numReadReplications = int "numreadreplications";
+      good = int "good";
+      nevacuate = int "nevacuate";
+      bytesevacuate = int "bytesevacuate";
+      nlost = int "nlost";
+      nwrites = int "nwrites";
+      load = int "load";
+      replay = int "replay";
+      connected = int "connected";
+      stopped = int "stopped";
+      chunks = int "chunks";
+      tiers = str "tiers";
+      lostChunkDirs = maybe_str "lostChunkDirs";
+      util_pct = float "util";
+    }
+  end
+
+let parse_down_servers v =
+  String.nsplit v "\t" |> List.map begin fun s ->
+    let h = parse_kv ~delim:"," s in
+    let int k = try int_of_string @@ Hashtbl.find h k with _ -> error "bad down_server value %S" k in
+    let str k = try Hashtbl.find h k with _ -> error "bad down_server value %S" k in
+    {
+      ip = str "s";
+      port = int "p";
+      reason = str "reason";
+      since = str "down";
+    }
+  end
+
+let parse_evacuating_servers v =
+  String.nsplit v "\t" |> List.map begin fun s ->
+    let h = parse_kv ~delim:"," s in
+    let int k = try int_of_string @@ Hashtbl.find h k with _ -> error "bad evacuating_server value %S" k in
+    let float k = try float_of_string @@ Hashtbl.find h k with _ -> error "bad evacuating_server value %S" k in
+    let str k = try Hashtbl.find h k with _ -> error "bad evacuating_server value %S" k in
+    {
+      ip = str "s";
+      port = int "p";
+      eta = float "eta";
+      bytes_left = int "b";
+      chunks_done = int "cdone";
+      bytes_done = int "bdone";
+      chunks_inflight = int "cflight";
+      chunks_pending = int "cpend";
+      chunks_per_second = float "csec";
+      bytes_per_second = float "bsec";
+      chunks_left = int "c";
     }
   end
 
@@ -241,7 +359,10 @@ let parse_system_info v =
     uptime = int "uptime";
     buffers = int "buffers";
     clients = int "clients";
+    delayed_recovery = int "delayed recovery";
+    in_recovery = int "in recovery";
     servers = int "chunk srvs";
+    sockets = int "sockets";
     chunks = int "chunks";
     requests = int "requests";
     total_drives = int "total drives";
@@ -249,7 +370,9 @@ let parse_system_info v =
     max_clients = int "max clients";
     max_servers = int "max chunk srvs";
     buffers_total = int "buffers total";
+    pending_recovery = int "pending recovery";
     pending_replication = int "pending replication";
+    repl_check_timeouts = int "repl check timeouts";
     replication_backlog = int "replication backlog";
     replications = int "replications";
     replications_check = int "replications check";
@@ -262,6 +385,8 @@ let parse_ping cin =
   let system = ref None in
   let worm = ref false in
   let servers = ref [] in
+  let down_servers = ref [] in
+  let evacuating_servers = ref [] in
   let%lwt () =
     Lwt_io.read_lines cin |> Lwt_stream.junk_while_s begin function
     | "" -> Lwt.return false
@@ -279,12 +404,12 @@ let parse_ping cin =
           | "worm" -> worm := v <> "0"
           | "system info" -> system := Some (parse_system_info v)
           | "servers" -> servers := parse_servers v
+          | "down servers" -> down_servers := parse_down_servers v
+          | "evacuating servers" -> evacuating_servers := parse_evacuating_servers v
           | "cseq"
           | "status"
           | "vr status"
           | "retiring servers"
-          | "evacuating servers"
-          | "down servers"
           | "rebalance status"
           | "config"
           | "watchdog"
@@ -308,6 +433,8 @@ let parse_ping cin =
     worm = !worm;
     system;
     servers = !servers;
+    down_servers = !down_servers;
+    evacuating_servers = !evacuating_servers;
   }
 
 let ping client =
