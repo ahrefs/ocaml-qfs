@@ -6,7 +6,7 @@
 
 using namespace KFS;
 
-typedef wrapped<std::shared_ptr<KfsClient>> ml_client;
+typedef wrapped<std::shared_ptr<KfsClient> > ml_client;
 
 template<>
 char const* ml_name<ml_client::type>() { return "KfsClient"; }
@@ -211,27 +211,11 @@ value ml_qfs_is_directory(value v, value v_path)
 value ml_qfs_create(value v, value v_path, value v_exclusive, value v_params)
 {
   CAMLparam4(v,v_path,v_exclusive,v_params);
-  int ret = with_qfs(v, static_cast<int (KfsClient::*)(const char*, bool, const char*, kfsMode_t, bool)>(&KfsClient::Create),
-                     C_STR(v_path), Bool_val(v_exclusive), C_STR(v_params), 0666, Bool_val(false));
+  int ret = with_qfs(v, static_cast<int (KfsClient::*)(const char*, bool, const char*)>(&KfsClient::Create),
+                     C_STR(v_path), Bool_val(v_exclusive), C_STR(v_params));
   if (ret < 0)
     unix_error(-ret,"Qfs.create",v_path);
   CAMLreturn(Val_file(ret));
-}
-
-value ml_qfs_create2(value v, value v_path, value v_exclusive, value v_mode, value v_force_type_flag, value v_params)
-{
-  CAMLparam5(v,v_path,v_exclusive, v_mode, v_force_type_flag);
-  CAMLxparam1(v_params);
-  int ret = with_qfs(v, static_cast<int (KfsClient::*)(const char*, bool, const char*, kfsMode_t, bool)>(&KfsClient::Create),
-                     C_STR(v_path), Bool_val(v_exclusive), C_STR(v_params), Int_val(v_mode), Bool_val(v_force_type_flag));
-  if (ret < 0)
-    unix_error(-ret,"Qfs.create",v_path);
-  CAMLreturn(Val_file(ret));
-}
-
-value ml_qfs_create2_bytecode(value * argv, int argn)
-{
-  return ml_qfs_create2(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
 }
 
 value ml_qfs_open(value v, value v_path, value v_flags, value v_params)

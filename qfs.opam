@@ -1,7 +1,7 @@
 x-ci-accept-failures: ["debian-unstable"]
 opam-version: "2.0"
 name: "qfs"
-version: "0.13"
+version: "0.12"
 synopsis: "Bindings to libqfs - client library to access QFS"
 description: "QFS is a distributed fault-tolerant filesystem by Quantcast"
 maintainer: "Ahrefs Pte Ltd <github@ahrefs.com>"
