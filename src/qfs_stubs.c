@@ -211,8 +211,15 @@ value ml_qfs_is_directory(value v, value v_path)
 value ml_qfs_create(value v, value v_path, value v_exclusive, value v_params)
 {
   CAMLparam4(v,v_path,v_exclusive,v_params);
-  int ret = with_qfs(v, static_cast<int (KfsClient::*)(const char*, bool, const char*)>(&KfsClient::Create),
-                     C_STR(v_path), Bool_val(v_exclusive), C_STR(v_params));
+  // inline with_qfs to avoid hardcoding KfsClient::Create type which changes often
+  ml_client::type p = ml_client::get(v);
+  std::string path = C_STR(v_path);
+  std::string params = C_STR(v_params);
+  int ret = 0;
+  do {
+    caml_blocking_section lock;
+    ret = p.get()->Create(path.c_str(), (bool)Bool_val(v_exclusive), params.c_str());
+  } while (0);
   if (ret < 0)
     unix_error(-ret,"Qfs.create",v_path);
   CAMLreturn(Val_file(ret));
