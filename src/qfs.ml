@@ -271,7 +271,7 @@ let parse_kv ~delim s =
   let h = Hashtbl.create 10 in
   String.nsplit s delim |> List.iter begin fun s ->
     match String.split s "=" with
-    | k,v -> Hashtbl.replace h String.(lowercase @@ strip k) (String.strip v)
+    | k,v -> Hashtbl.replace h String.(lowercase_ascii @@ strip k) (String.strip v)
     | exception _ -> error "no delimiter"
   end;
   h
@@ -398,7 +398,7 @@ let parse_ping cin =
           | exception _ -> error "no delimiter"
           | (k,v) ->
           let v = String.strip v in
-          let () = match String.(lowercase @@ strip k) with
+          let () = match String.(lowercase_ascii @@ strip k) with
           | "build-version" -> build_version := v
           | "source-version" -> source_version := v
           | "worm" -> worm := v <> "0"
